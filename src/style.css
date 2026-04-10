@@ -434,7 +434,7 @@ textarea.fi { resize: none; }
 /* ─── Modal ────────────────────── */
 .mo {
   position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 2000;
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
+  display: flex; flex-direction: column; align-items: center; justify-content: center; 
   padding: 40px 16px; overflow-y: auto; opacity: 0; pointer-events: none;
   transition: opacity 0.2s;
 }
@@ -804,7 +804,7 @@ textarea.fi { resize: none; }
 
   /* Página principal */
   .pg-inner { padding: 0 12px 120px !important; }
-  .pg-hd { flex-direction: column; align-items: flex-start !important; gap: 12px; }
+  .pg-hd { flex-direction: column; align-items: center !important; gap: 12px; text-align: center; }
 
   /* Dashboard content wrapper */
   .dash-content { padding: 16px !important; }
@@ -961,10 +961,11 @@ textarea.fi { resize: none; }
   /* Hero text: centralizado e compacto no mobile */
   .hero-grid > div:first-child {
     max-width: 100% !important;
-    text-align: left;
+    text-align: center !important;
   }
   #daily-verse {
     font-size: 13px !important;
     margin-bottom: 16px !important;
+    text-align: center !important;
   }
 }
