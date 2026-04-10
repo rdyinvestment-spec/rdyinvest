@@ -194,10 +194,9 @@ export function initChartDefaults() {
   Chart.defaults.plugins.tooltip.bodyFont = { size: 14, weight: '800' };
   Chart.defaults.plugins.tooltip.displayColors = false;
 
-  // Standardize scales
-  Chart.defaults.scales.linear.grid.color = 'rgba(255,255,255,0.03)';
-  Chart.defaults.scales.linear.grid.drawBorder = false;
-  Chart.defaults.scales.linear.ticks.color = '#606060';
+  // Standardize scales (v4 syntax)
+  Chart.defaults.scale.grid.color = 'rgba(255,255,255,0.03)';
+  Chart.defaults.scale.ticks.color = '#606060';
 }
 
 /* ─── Charts ─────────────────────────── */
