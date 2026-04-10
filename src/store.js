@@ -271,7 +271,10 @@ export const store = {
   async saveConfig(cfg) {
     const user = state.user;
     if (!user) return { error: 'No user' };
-    const { data, error } = await supabase.from('user_configs').upsert({ ...cfg, user_id: user.id }).select();
+    const { data, error } = await supabase
+      .from('user_configs')
+      .upsert({ ...cfg, user_id: user.id }, { onConflict: 'user_id' })
+      .select();
     if (!error) state.config = data[0];
     return { data, error };
   },
