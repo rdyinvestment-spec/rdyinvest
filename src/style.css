@@ -321,16 +321,17 @@ textarea.fi { resize: none; }
 
 /* ─── Page Transition ──────────── */
 @keyframes fadeUp {
-  from { opacity: 0.8; transform: translate3d(0, 4px, 0); }
-  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+  from { opacity: 0.9; }
+  to   { opacity: 1; }
 }
 .page-transition-enter { 
-  animation: fadeUp 0.12s var(--ease) both; 
-  will-change: opacity, transform;
+  animation: fadeUp 0.1s var(--ease) both; 
+  will-change: opacity;
 }
 
 /* ─── Page Wrapper ─────────────── */
 .pg-inner { padding: 0 16px 120px; }
+#page-content { min-height: 85vh; }
 .pg-hd { display: flex; align-items: center; justify-content: space-between; padding: 20px 0 14px; }
 .pg-t { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
 
@@ -754,6 +755,80 @@ textarea.fi { resize: none; }
   grid-template-columns: 1.2fr 1fr;
   gap: 40px;
   align-items: center;
+}
+
+/* ─── Auth Screens ────────────── */
+.splash-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 9999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.splash-wrap {
+  text-align: center;
+  transition: transform 0.6s ease, opacity 0.4s ease;
+}
+.auth-screen {
+  display: none;
+  position: fixed; inset: 0;
+  background: radial-gradient(circle at center, #111 0%, #000 100%);
+  z-index: 9990;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  overflow-y: auto;
+}
+.auth-brand {
+  text-align: center;
+  margin-bottom: 40px;
+  transition: transform 0.8s var(--ease);
+}
+.auth-logo {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(40px, 12vw, 64px);
+  font-weight: 900;
+  color: var(--xp);
+  letter-spacing: clamp(-1px, -0.5vw, -3px);
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+.auth-subtitle {
+  font-size: clamp(9px, 2.5vw, 12px);
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-top: 12px;
+  letter-spacing: clamp(1px, 1vw, 4px);
+  font-weight: 800;
+  word-break: break-word;
+}
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: clamp(20px, 5vw, 48px);
+  background: rgba(10,10,10,0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.9);
+}
+.auth-card-title {
+  font-size: clamp(18px, 5vw, 24px);
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+.auth-card-sub {
+  font-size: 13px;
+  color: var(--text3);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+@media (max-width: 400px) {
+  .auth-brand { margin-bottom: 20px; }
+  .auth-screen { justify-content: flex-start; padding-top: 36px; }
 }
 
 /* ─── Hero Typography ─────────── */
