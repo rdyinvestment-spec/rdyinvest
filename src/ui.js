@@ -113,9 +113,9 @@ function pgDashboard() {
           </div>
           <div style="margin: 32px 0">
             <div class="mono" style="font-size: 64px; font-weight: 900; letter-spacing: -4px; color: ${isPos ? 'var(--green)' : 'var(--red)'}">${fR(c.balance)}</div>
-            <div style="display: flex; gap: 12px; margin-top: 16px">
+            <div style="display: flex; gap: 12px; margin-top: 16px; align-items: center">
               <span class="badge ${isPos ? 'badge-pos' : 'badge-neg'}" style="border-radius: 4px; padding: 4px 10px; font-size: 11px">Win Rate: ${fPct(c.wr)}</span>
-              <span style="font-size: 14px; font-weight: 700; color: var(--text3)">${fR(c.totalPL)} P&L Líquido</span>
+              <span style="font-size: 14px; font-weight: 700; color: var(--text3)">${fR(c.totalPL)} <span class="${cv(c.totalPL)}" style="font-size: 12px; margin-left: 4px">(${c.totalPL > 0 ? '+' : ''}${((c.totalPL / (c.startCap || 1)) * 100).toFixed(2)}%)</span></span>
             </div>
           </div>
         </div>
@@ -289,11 +289,15 @@ function pgCalendar() {
     const entry = state.days.find(x => x.date === dStr);
     const isToday = dStr === today();
     const type = entry ? (entry.profit_loss > 0 ? 'pos' : (entry.profit_loss < 0 ? 'neg' : 'neu')) : '';
+    const pct = entry ? (entry.profit_loss / (entry.starting_balance || 1)) * 100 : 0;
     
     html += `
       <div class="cd ${type} ${isToday ? 'tod' : ''}" onclick="calClick('${dStr}')">
         <span class="cd-n">${d}</span>
-        ${entry ? `<span class="cd-v">${fR(entry.profit_loss)}</span>` : ''}
+        ${entry ? `
+          <span class="cd-v">${fR(entry.profit_loss)}</span>
+          <div style="font-size: 8px; font-weight: 800; opacity: 0.7; margin-top: 2px">${pct > 0 ? '+' : ''}${pct.toFixed(2)}%</div>
+        ` : ''}
         ${isToday ? `<div class="cd-dot"></div>` : ''}
       </div>
     `;
