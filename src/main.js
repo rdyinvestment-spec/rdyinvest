@@ -160,7 +160,31 @@ window.openSettingsMo = () => {
   document.getElementById('cfg-rule').value = cfg.contract_rule_value || 500;
   document.getElementById('cfg-point-val').value = cfg.point_value || 0.20;
   document.getElementById('cfg-tax-rate').value = cfg.tax_rate || 1.0;
+  updateSettingsPreview();
   openMo('mo-settings');
+};
+
+/**
+ * Live Card Preview in Settings
+ */
+window.updateSettingsPreview = () => {
+  const cardName = document.getElementById('cfg-card-name')?.value || 'MEMBRO ELITE';
+  const previewDiv = document.getElementById('settings-card-preview');
+  if (!previewDiv) return;
+
+  previewDiv.innerHTML = `
+    <div style="width: 100%; min-height: 200px; background: linear-gradient(135deg, #1d1d1d, #000); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; padding: 20px">
+      <div style="width: 100%; height: 180px; position: relative">
+        <div style="position: absolute; top: 20px; left: 20px; font-size: 22px; font-weight: 900; color: #FFD100; letter-spacing: -1px">RDY</div>
+        <div style="position: absolute; bottom: 20px; left: 20px; font-size: 13px; font-weight: 700; color: #FFF; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px">${cardName}</div>
+        <div style="position: absolute; top: 20px; right: 20px; width: 44px; height: 30px; background: rgba(255,255,255,0.08); border-radius: 4px; display: flex; align-items: center; justify-content: center">
+          <div style="width: 22px; height: 14px; background: #FFD100; border-radius: 2px; opacity: 0.9"></div>
+        </div>
+        <div style="position: absolute; inset: 0; background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%); pointer-events: none"></div>
+        <div style="position: absolute; bottom: 20px; right: 20px; font-size: 8px; font-weight: 800; color: var(--xp); opacity: 0.5; letter-spacing: 2px">INVESTMENT LEGACY</div>
+      </div>
+    </div>
+  `;
 };
 
 window.saveSettings = async () => {

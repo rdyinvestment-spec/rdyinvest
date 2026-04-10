@@ -287,24 +287,42 @@ textarea.fi { resize: none; }
   transition: opacity 0.2s;
 }
 .mo.open { opacity: 1; pointer-events: all; }
-.mo-content {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass);
-  -webkit-backdrop-filter: var(--glass);
-  width: 100%;
-  max-width: 600px;
-  border-radius: 32px 32px 0 0;
-  padding: 32px 24px;
-  position: relative;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 -20px 60px rgba(0,0,0,0.9);
+/* Elite Modal 2.0 */
+.mo-elite .mo-content {
+  border-radius: 24px;
+  max-width: 900px;
+  margin: auto;
+  top: 50%; transform: translateY(-50%);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 0;
+  overflow: hidden;
 }
-.mo-content::after {
-  content: '';
-  position: absolute;
-  top: 8px; left: 50%; transform: translateX(-50%);
-  width: 40px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px;
+.mo-elite .mo-content::after { display: none; }
+
+.mo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 500px;
 }
+.mo-col-form {
+  padding: 40px;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+.mo-col-preview {
+  padding: 40px;
+  background: rgba(255,255,255,0.02);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+@media (max-width: 800px) {
+  .mo-grid { grid-template-columns: 1fr; }
+  .mo-col-form { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .mo-elite .mo-content { top: 0; transform: none; border-radius: 24px 24px 0 0; }
+}
+
 .ms {
   background: var(--bg2); border-radius: 22px 22px 0 0; width: 100%;
   max-height: 92dvh; max-height: 92vh; overflow-y: auto;
