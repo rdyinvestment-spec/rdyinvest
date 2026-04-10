@@ -40,7 +40,6 @@ window.openDailyModal = (dateStr = today(), existing = null) => {
   document.getElementById('df-wins').value = day ? day.wins : '';
   document.getElementById('df-losses').value = day ? day.losses : '';
   document.getElementById('df-setup').value = day ? day.setup : '';
-  document.getElementById('df-notes').value = day ? day.notes : '';
   
   // Toggles
   setTog('tog-plan', day ? day.followed_plan : true);
@@ -50,10 +49,6 @@ window.openDailyModal = (dateStr = today(), existing = null) => {
   // Balance
   const startBal = day ? day.starting_balance : calcStartingBalance(dateStr);
   document.getElementById('df-st').value = startBal.toFixed(2);
-  
-  // Emotional Stars
-  window.starVal = day ? day.emotional_rating : 5;
-  renderStars(window.starVal);
   
   // Delete Button
   document.getElementById('df-del-wrap').style.display = day ? 'block' : 'none';
@@ -68,12 +63,7 @@ function setTog(id, val) {
 }
 window.toggleTog = (id) => document.getElementById(id)?.classList.toggle('on');
 
-function renderStars(val) {
-  document.querySelectorAll('.star').forEach((s, i) => {
-    s.classList.toggle('on', i < val);
-  });
-}
-window.setStar = (v) => { window.starVal = v; renderStars(v); };
+window.toggleTog = (id) => document.getElementById(id)?.classList.toggle('on');
 
 window.saveDaily = async () => {
   const pts = Number(document.getElementById('df-pts').value);
@@ -92,11 +82,9 @@ window.saveDaily = async () => {
     wins: Number(document.getElementById('df-wins').value),
     losses: Number(document.getElementById('df-losses').value),
     setup: document.getElementById('df-setup').value,
-    notes: document.getElementById('df-notes').value,
     followed_plan: document.getElementById('tog-plan').classList.contains('on'),
     overtrade: document.getElementById('tog-over').classList.contains('on'),
-    revenge_trading: document.getElementById('tog-rev').classList.contains('on'),
-    emotional_rating: window.starVal
+    revenge_trading: document.getElementById('tog-rev').classList.contains('on')
   };
   
   const { error } = await store.saveDay(entry);
