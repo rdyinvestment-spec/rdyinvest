@@ -58,6 +58,15 @@ window.openDailyModal = (dateStr = today(), existing = null) => {
   window.currentDayId = day ? day.id : null;
   
   openMo('mo-day');
+  
+  // Update percentage
+  setTimeout(() => {
+    const pVal = Number(document.getElementById('df-pl-val').value) || 0;
+    const sBal = Number(document.getElementById('df-st').value) || 1;
+    const pct = (pVal / sBal) * 100;
+    const pctEl = document.getElementById('df-pl-pct');
+    if (pctEl) pctEl.innerText = pVal !== 0 ? `(${pct > 0 ? '+' : ''}${pct.toFixed(2)}%)` : '';
+  }, 50);
 };
 
 function setTog(id, val) {
@@ -534,6 +543,16 @@ function initDailyCalc() {
       if (c > 0) val.value = (p * c * pVal).toFixed(2);
     } else if (source === 'val') {
       if (c > 0 && pVal > 0) pts.value = Math.round(v / (c * pVal));
+    }
+
+    // Calc Pct
+    const sBal = Number(document.getElementById('df-st').value) || 1;
+    const currentVal = Number(val.value) || 0;
+    const pct = (currentVal / sBal) * 100;
+    const pctEl = document.getElementById('df-pl-pct');
+    if (pctEl) {
+      pctEl.innerText = currentVal !== 0 ? `(${pct > 0 ? '+' : ''}${pct.toFixed(2)}%)` : '';
+      pctEl.style.color = currentVal > 0 ? '#4ADE80' : (currentVal < 0 ? '#F87171' : 'inherit');
     }
   };
 
