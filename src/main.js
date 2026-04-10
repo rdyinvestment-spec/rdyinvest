@@ -183,14 +183,18 @@ window.saveDeposit = async () => {
     amount: Number(document.getElementById('dep-amt').value),
     description: document.getElementById('dep-desc').value
   };
-  const { error } = await store.saveDeposit(dep);
-  if (!error) { toast('Aporte realizado'); closeMo(); openMovModal(); initApp(); }
+   const { error } = await store.saveDeposit(dep);
+  if (!error) { 
+    toast('Aporte realizado'); 
+    closeMo(); 
+    if (window.currentPage === 'movements') renderPage('movements');
+    else initApp();
+  }
 };
 window.delDeposit = async (id) => {
   if (confirm('Excluir este aporte?')) {
-    await store.deleteDeposit(id);
     await initApp();
-    openMovModal();
+    if (window.currentPage === 'movements') renderPage('movements');
   }
 };
 
@@ -201,69 +205,39 @@ window.saveWithdrawal = async () => {
     amount: Number(document.getElementById('wd-amt').value),
     description: document.getElementById('wd-desc').value
   };
-  const { error } = await store.saveWithdrawal(wd);
-  if (!error) { toast('Resgate realizado'); closeMo(); openMovModal(); initApp(); }
+   const { error } = await store.saveWithdrawal(wd);
+  if (!error) { 
+    toast('Resgate realizado'); 
+    closeMo(); 
+    if (window.currentPage === 'movements') renderPage('movements');
+    else initApp();
+  }
 };
 window.delWithdrawal = async (id) => {
   if (confirm('Excluir este resgate?')) {
-    await store.deleteWithdrawal(id);
     await initApp();
-    openMovModal();
+    if (window.currentPage === 'movements') renderPage('movements');
   }
 };
 
-window.openMovModal = () => {
-  const list = document.getElementById('mov-list');
-  if (!list) return;
+window.openMovModal = () => openMo('mo-mov');
 
-  const all = [
-    ...state.deposits.map(d => ({ ...d, tipo: 'Aporte', color: 'var(--green)', sign: '+' })),
-    ...state.withdrawals.map(d => ({ ...d, tipo: 'Resgate', color: 'var(--red)', sign: '-' }))
-  ].sort((a, b) => b.date.localeCompare(a.date));
-
-  if (all.length === 0) {
-    list.innerHTML = `<div style="text-align:center; padding: 48px 0; color: var(--text3); font-size: 14px; font-weight: 600">Nenhuma movimentação registrada</div>`;
+window.editMov = (type, id) => {
+  if (type === 'DEP') {
+    const d = state.deposits.find(x => x.id === id);
+    if (!d) return;
+    document.getElementById('dep-date').value = d.date;
+    document.getElementById('dep-amt').value = d.amount;
+    document.getElementById('dep-desc').value = d.description || '';
+    openMo('mo-dep');
   } else {
-    const totalDep = state.deposits.reduce((a, d) => a + Number(d.amount), 0);
-    const totalWd  = state.withdrawals.reduce((a, d) => a + Number(d.amount), 0);
-    const saldo    = totalDep - totalWd;
-
-    list.innerHTML = `
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 32px">
-        <div class="card" style="padding: 20px 16px; display: flex; flex-direction: column; min-width: 0">
-          <div style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px">Aportes</div>
-          <div class="mono" style="font-size: clamp(14px, 1.8vw, 18px); font-weight: 900; color: var(--green); overflow: hidden; text-overflow: ellipsis; white-space: nowrap">+${fR(totalDep)}</div>
-          <div style="font-size: 10px; color: var(--text3); margin-top: 6px; font-weight: 600; white-space: nowrap">${state.deposits.length} realizados</div>
-        </div>
-        <div class="card" style="padding: 20px 16px; display: flex; flex-direction: column; min-width: 0">
-          <div style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px">Resgates</div>
-          <div class="mono" style="font-size: clamp(14px, 1.8vw, 18px); font-weight: 900; color: var(--red); overflow: hidden; text-overflow: ellipsis; white-space: nowrap">-${fR(totalWd)}</div>
-          <div style="font-size: 10px; color: var(--text3); margin-top: 6px; font-weight: 600; white-space: nowrap">${state.withdrawals.length} realizados</div>
-        </div>
-        <div class="card" style="padding: 20px 16px; display: flex; flex-direction: column; min-width: 0">
-          <div style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px">Saldo</div>
-          <div class="mono" style="font-size: clamp(14px, 1.8vw, 18px); font-weight: 900; color: ${saldo >= 0 ? 'var(--green)' : 'var(--red)'}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">${fR(saldo)}</div>
-          <div style="font-size: 10px; color: var(--text3); margin-top: 6px; font-weight: 600; white-space: nowrap">Saldo em Conta</div>
-        </div>
-      </div>
-      <div>
-        ${all.map(item => `
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border)">
-            <div>
-              <div style="font-size: 14px; font-weight: 700; color: var(--text1)">${item.tipo}</div>
-              <div style="font-size: 11px; color: var(--text3); margin-top: 2px">${item.date.split('-').reverse().join('/')}${item.description ? ' · ' + item.description : ''}</div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 12px">
-              <span class="mono" style="font-size: 17px; font-weight: 900; color: ${item.color}">${item.sign}${fR(item.amount)}</span>
-              <button onclick="${item.tipo === 'Aporte' ? 'delDeposit' : 'delWithdrawal'}('${item.id}')" class="btn btn-ghost" style="color: var(--red); border-color: rgba(248,113,113,0.25); width: 32px; height: 32px; padding: 0; font-size: 16px; display: flex; align-items: center; justify-content: center">×</button>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `;
+    const w = state.withdrawals.find(x => x.id === id);
+    if (!w) return;
+    document.getElementById('wd-date').value = w.date;
+    document.getElementById('wd-amt').value = w.amount;
+    document.getElementById('wd-desc').value = w.description || '';
+    openMo('mo-wd');
   }
-
-  openMo('mo-mov');
 };
 
 /* ─── Settings ───────────────────────── */

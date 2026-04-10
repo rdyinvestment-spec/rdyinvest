@@ -18,7 +18,9 @@ export function renderPage(page, options = {}) {
         repM: new Date().getMonth(),
         repY: new Date().getFullYear(),
         calM: new Date().getMonth(),
-        calY: new Date().getFullYear()
+        calY: new Date().getFullYear(),
+        movFilterType: 'all',
+        movPeriod: 'all'
       };
     }
 
@@ -48,6 +50,9 @@ export function renderPage(page, options = {}) {
       case 'settings':
         content = pgSettings();
         break;
+      case 'movements':
+        content = pgMovements();
+        break;
       default:
         content = `<div style="padding:24px"><div class="card">Página em construção</div></div>`;
     }
@@ -63,6 +68,7 @@ export function renderPage(page, options = {}) {
     if (page === 'dashboard') mountDashboardCharts();
     if (page === 'calendar') mountCalendarCharts();
     if (page === 'reports') mountReportsCharts();
+    if (page === 'movements') mountMovementsCharts();
   } catch (err) {
     console.error('Render Error:', err);
     const container = document.getElementById('page-content');
@@ -971,9 +977,200 @@ function pgAdmin() {
   `;
 }
 
+
+/* ─── Movements Page ────────────────── */
+function pgMovements() {
+  const c = CALC();
+  const type = window.pgState.movFilterType || 'all';
+  const period = window.pgState.movPeriod || 'all';
+  
+  // Filtering logic
+  let filteredDeps = [...state.deposits];
+  let filteredWths = [...state.withdrawals];
+  
+  if (type === 'deposit') filteredWths = [];
+  if (type === 'withdrawal') filteredDeps = [];
+  
+  // Period filter (simple for now: all, month, year)
+  if (period === 'month') {
+    const curMonth = new Date().getMonth();
+    const curYear = new Date().getFullYear();
+    filteredDeps = filteredDeps.filter(d => {
+      const dd = new Date(d.date + 'T00:00:00');
+      return dd.getMonth() === curMonth && dd.getFullYear() === curYear;
+    });
+    filteredWths = filteredWths.filter(d => {
+      const dd = new Date(d.date + 'T00:00:00');
+      return dd.getMonth() === curMonth && dd.getFullYear() === curYear;
+    });
+  }
+
+  const depSum = filteredDeps.reduce((a, b) => a + Number(b.amount), 0);
+  const wthSum = filteredWths.reduce((a, b) => a + Number(b.amount), 0);
+  const net = depSum - wthSum;
+
+  const allRecords = [
+    ...filteredDeps.map(d => ({ ...d, type: 'DEP' })),
+    ...filteredWths.map(w => ({ ...w, type: 'WTH' }))
+  ].sort((a, b) => b.date.localeCompare(a.date));
+
+  return `
+    <div class="dash-content">
+      <div class="pg-hd">
+        <div>
+          <div class="shdr-t">Gestão de Capital</div>
+          <h1 class="pg-t">Fluxo de <span class="xp">Caixa</span></h1>
+        </div>
+        <div style="display: flex; gap: 10px">
+           <button class="btn btn-xp" onclick="openMovModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Novo Movimento
+           </button>
+        </div>
+      </div>
+
+      <!-- KPI Summary -->
+      <div class="kpi-grid" style="margin-bottom: 32px">
+        <div class="card card-indicator">
+          <div class="indicator-label">Saldo em Banca</div>
+          <div class="indicator-val" style="color: var(--xp)">${fR(c.balance)}</div>
+        </div>
+        <div class="card card-indicator pos">
+          <div class="indicator-label">Total Aportes</div>
+          <div class="indicator-val" style="color: var(--green)">${fR(depSum)}</div>
+        </div>
+        <div class="card card-indicator neg">
+          <div class="indicator-label">Total Retiradas</div>
+          <div class="indicator-val" style="color: var(--red)">${fR(wthSum)}</div>
+        </div>
+        <div class="card card-indicator ${net >= 0 ? 'pos' : 'neg'}">
+          <div class="indicator-label">Fluxo Líquido</div>
+          <div class="indicator-val">${fR(net)}</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card" style="margin-bottom: 32px; padding: 16px 24px">
+        <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: center justify-content: space-between">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
+             <span style="font-size: 11px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; width: 100%; margin-bottom: 4px; display: block">Tipo</span>
+             <button class="bdg ${type === 'all' ? 'on' : ''}" onclick="setMovFilter('type', 'all')">Todos</button>
+             <button class="bdg bdg-gr ${type === 'deposit' ? 'on' : ''}" onclick="setMovFilter('type', 'deposit')">Aportes</button>
+             <button class="bdg bdg-rd ${type === 'withdrawal' ? 'on' : ''}" onclick="setMovFilter('type', 'withdrawal')">Retiradas</button>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
+             <span style="font-size: 11px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; width: 100%; margin-bottom: 4px; display: block">Período</span>
+             <button class="bdg ${period === 'all' ? 'on' : ''}" onclick="setMovFilter('period', 'all')">Tudo</button>
+             <button class="bdg ${period === 'month' ? 'on' : ''}" onclick="setMovFilter('period', 'month')">Mês Atual</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bento-grid" style="padding: 0; gap: 24px">
+        <!-- Chart History -->
+        <div class="card card-xl" style="padding: 24px; min-height: 350px">
+           <div class="shdr-t" style="margin-bottom: 24px">Histórico de Movimentações</div>
+           <div style="height: 250px"><canvas id="ch-mov-history"></canvas></div>
+        </div>
+
+        <!-- Details -->
+        <div class="card card-xl" style="padding: 0">
+           <div style="padding: 24px; border-bottom: 1px solid var(--border)">
+              <div class="shdr-t">Extrato Detalhado</div>
+           </div>
+           <div style="padding: 24px">
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                 ${allRecords.map(r => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px">
+                       <div style="display: flex; align-items: center; gap: 12px">
+                          <div style="width: 40px; height: 40px; border-radius: 10px; background: ${r.type === 'DEP' ? 'var(--green-dim)' : 'var(--red-dim)'}; display: flex; align-items: center; justify-content: center; color: ${r.type === 'DEP' ? 'var(--green)' : 'var(--red)'}">
+                             ${r.type === 'DEP' ? '💰' : '💸'}
+                          </div>
+                          <div>
+                             <div style="font-weight: 800; font-size: 14px">${r.type === 'DEP' ? 'Aporte' : 'Retirada'}</div>
+                             <div style="font-size: 11px; color: var(--text3)">${fDate(r.date)}</div>
+                          </div>
+                       </div>
+                       <div style="text-align: right">
+                          <div class="mono" style="font-size: 15px; font-weight: 800; color: ${r.type === 'DEP' ? 'var(--green)' : 'var(--red)'}">
+                             ${r.type === 'DEP' ? '+' : '-'}${fR(r.amount)}
+                          </div>
+                          <div style="margin-top: 4px; display: flex; gap: 8px; justify-content: flex-end">
+                             <span onclick="editMov('${r.type}', '${r.id}')" style="font-size: 10px; color: var(--text3); cursor: pointer; text-decoration: underline">Editar</span>
+                          </div>
+                       </div>
+                    </div>
+                 `).join('')}
+                 ${allRecords.length === 0 ? '<div style="text-align: center; color: var(--text3); padding: 40px">Nenhum registro encontrado</div>' : ''}
+              </div>
+           </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function mountMovementsCharts() {
+  const ctx = document.getElementById('ch-mov-history')?.getContext('2d');
+  if (!ctx) return;
+
+  const deps = state.deposits;
+  const wths = state.withdrawals;
+  
+  // Combine and sort all unique dates
+  const allDates = Array.from(new Set([...deps.map(d => d.date), ...wths.map(w => w.date)])).sort();
+  
+  const depData = allDates.map(date => deps.filter(d => d.date === date).reduce((a, b) => a + Number(b.amount), 0));
+  const wthData = allDates.map(date => wths.filter(d => d.date === date).reduce((a, b) => a + Number(b.amount), 0));
+
+  window.activeCharts.movHistory = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: allDates.map(d => fDate(d)),
+      datasets: [
+        {
+          label: 'Aportes',
+          data: depData,
+          backgroundColor: 'rgba(0, 230, 118, 0.4)',
+          borderColor: 'var(--green)',
+          borderWidth: 1,
+          borderRadius: 4
+        },
+        {
+          label: 'Retiradas',
+          data: wthData,
+          backgroundColor: 'rgba(255, 82, 82, 0.4)',
+          borderColor: 'var(--red)',
+          borderWidth: 1,
+          borderRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, ticks: { callback: (v) => 'R$' + v } }
+      },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+// Global Filter Handlers
+window.setMovFilter = (key, val) => {
+  if (key === 'type') window.pgState.movFilterType = val;
+  if (key === 'period') window.pgState.movPeriod = val;
+  renderPage('movements');
+};
+
 function fDate(d) {
   if (!d) return '';
-  const [, m, day] = d.split('-');
-  return `${day}/${m}`;
+  const parts = d.split('-');
+  if (parts.length < 3) return d;
+  return `${parts[2]}/${parts[1]}`;
 }
 
