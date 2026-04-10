@@ -125,13 +125,12 @@
     </nav>
   </div>
 
-  <!-- Modal: Daily Entry -->
-  <div id="mo-daily" class="mo" onclick="if(event.target===this)closeMo()">
-    <div class="ms">
-      <div class="mh" onclick="closeMo()"><div style="width:40px;height:4px;background:#333;border-radius:2px;margin:0 auto"></div></div>
-      <div class="mt">
-        <h3 style="font-size:20px;font-weight:900;margin-bottom:20px">Lançamento de <span style="color:var(--xp)">Operações</span></h3>
-        <div class="mf">
+  <!-- Modal: Daily Form Elite -->
+  <div id="mo-day" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
+    <div class="mo-content" style="padding: 32px 24px; max-width: 500px">
+      <div id="day-form">
+        <h3 id="df-title" class="shdr-t">Registro de Operação</h3>
+        <div class="mf" style="margin-top:24px">
           <div class="fr">
             <div class="fl"><label class="fl-lb">Data</label><input type="date" id="df-date" class="fi"></div>
             <div class="fl"><label class="fl-lb">Pontos</label><input type="number" id="df-pts" class="fi" placeholder="0"></div>
@@ -184,34 +183,28 @@
     </div>
   </div>
 
-  <!-- Modal: Deposit -->
-  <div id="mo-dep" class="mo" onclick="if(event.target===this)closeMo()">
-    <div class="ms">
-      <div class="mh" onclick="closeMo()"></div>
-      <div class="mt">
-        <h3 class="shdr-t">Novo Aporte</h3>
-        <div class="mf" style="margin-top:20px">
-          <input type="date" id="dep-date" class="fi">
-          <input type="number" id="dep-amt" class="fi" placeholder="Valor R$">
-          <input type="text" id="dep-desc" class="fi" placeholder="Descrição (opcional)">
-          <button class="btn btn-xp" onclick="saveDeposit()">Confirmar Aporte</button>
-        </div>
+  <!-- Modal: Deposit Elite -->
+  <div id="mo-dep" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
+    <div class="mo-content" style="padding: 32px 24px; max-width: 450px">
+      <h3 class="shdr-t">Novo Aporte</h3>
+      <div class="mf" style="margin-top:24px">
+        <input type="date" id="dep-date" class="fi">
+        <input type="number" id="dep-amt" class="fi" placeholder="Valor R$">
+        <input type="text" id="dep-desc" class="fi" placeholder="Descrição (opcional)">
+        <button class="btn btn-xp" onclick="saveDeposit()" style="margin-top:12px">Confirmar Aporte</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal: Withdrawal -->
-  <div id="mo-wd" class="mo" onclick="if(event.target===this)closeMo()">
-    <div class="ms">
-      <div class="mh" onclick="closeMo()"></div>
-      <div class="mt">
-        <h3 class="shdr-t">Nova Retirada</h3>
-        <div class="mf" style="margin-top:20px">
-          <input type="date" id="wd-date" class="fi">
-          <input type="number" id="wd-amt" class="fi" placeholder="Valor R$">
-          <input type="text" id="wd-desc" class="fi" placeholder="Descrição (opcional)">
-          <button class="btn btn-xp" onclick="saveWithdrawal()">Confirmar Saque</button>
-        </div>
+  <!-- Modal: Withdrawal Elite -->
+  <div id="mo-wd" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
+    <div class="mo-content" style="padding: 32px 24px; max-width: 450px">
+      <h3 class="shdr-t">Nova Retirada</h3>
+      <div class="mf" style="margin-top:24px">
+        <input type="date" id="wd-date" class="fi">
+        <input type="number" id="wd-amt" class="fi" placeholder="Valor R$">
+        <input type="text" id="wd-desc" class="fi" placeholder="Descrição (opcional)">
+        <button class="btn btn-xp" onclick="saveWithdrawal()" style="margin-top:12px">Confirmar Saque</button>
       </div>
     </div>
   </div>
