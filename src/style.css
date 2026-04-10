@@ -68,6 +68,59 @@ body {
 
 .mono { font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.04em; }
 
+/* ─── App Header ──────────────── */
+.app-header {
+  padding: 0 clamp(16px, 4vw, 32px);
+  height: clamp(56px, 8vh, 72px);
+  position: sticky; top: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 100;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.app-header-left { display: flex; align-items: center; }
+.app-header-right { display: flex; align-items: center; }
+.app-logo {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(18px, 5vw, 24px);
+  font-weight: 900;
+  color: #FFD100;
+  letter-spacing: -1.5px;
+  cursor: pointer;
+}
+.app-logout {
+  display: flex; align-items: center; gap: 6px;
+  padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 16px);
+  border-radius: 12px;
+  background: var(--xp-dim);
+  border: 1px solid var(--xp);
+  color: white;
+  font-size: clamp(9px, 2vw, 11px);
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* ─── Page Main ───────────────── */
+.page-main {
+  /* Sem padding — cada página gerencia o próprio espaçamento */
+  padding: 0;
+  min-height: calc(100vh - clamp(56px, 8vh, 72px));
+  overflow-x: hidden;
+}
+
+/* ─── Dash Content Wrapper ─────── */
+.dash-content {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: clamp(16px, 3vw, 40px) clamp(16px, 3vw, 40px);
+}
+
 /* ─── Grid ────────────────────── */
 .bento-grid {
   display: grid;
@@ -735,7 +788,7 @@ textarea.fi { resize: none; }
   .pg-hd { flex-direction: column; align-items: flex-start !important; gap: 12px; }
 
   /* Dashboard content wrapper */
-  .dash-content { padding: 20px 16px !important; }
+  .dash-content { padding: 16px !important; }
 }
 
 .f-table-container { 
