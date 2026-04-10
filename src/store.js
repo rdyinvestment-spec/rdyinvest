@@ -276,6 +276,44 @@ export const store = {
     return { data, error };
   },
   
+  async resetAllData() {
+    const user = state.user;
+    if (!user) return { error: 'No user' };
+    
+    // Clear all operational tables
+    const tables = ['trading_days', 'trades', 'deposits', 'withdrawals'];
+    for (const table of tables) {
+      const { error } = await supabase.from(table).delete().eq('user_id', user.id);
+      if (error) return { error };
+    }
+
+    // Reset config to defaults
+    const { error: cfgErr } = await supabase.from('user_configs').update({
+      starting_capital: 0,
+      monthly_goal: 0,
+      contract_rule_value: 500,
+      point_value: 0.20,
+      tax_rate: 1.0
+    }).eq('user_id', user.id);
+
+    if (cfgErr) return { error: cfgErr };
+
+    // Refresh local state
+    state.days = [];
+    state.trades = [];
+    state.deposits = [];
+    state.withdrawals = [];
+    state.config = {
+      starting_capital: 0,
+      monthly_goal: 0,
+      contract_rule_value: 500,
+      point_value: 0.20,
+      tax_rate: 1.0
+    };
+
+    return { success: true };
+  },
+
   async saveProfile(pData) {
     const user = state.user;
     if (!user) return { error: 'No user' };

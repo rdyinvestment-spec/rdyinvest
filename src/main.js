@@ -198,6 +198,21 @@ window.saveSettings = async () => {
   }
 };
 
+window.resetEverything = async () => {
+  if (!confirm('🚨 ATENÇÃO: Você está prestes a apagar TODO o seu histórico operacional, incluindo trades, aportes e saques. Esta ação não pode ser desfeita.\n\nTem certeza absoluta que deseja zerar tudo?')) return;
+  
+  toast('Zerando ecossistema...', 'wait');
+  const { success, error } = await store.resetAllData();
+  
+  if (success) {
+    toast('Histórico zerado com sucesso!');
+    closeMo();
+    showPage('dashboard');
+  } else {
+    toast('Erro ao zerar dados: ' + (error.message || error), 'err');
+  }
+};
+
 /* ─── Navigation & Tabs ──────────────── */
 window.calNav = (dir) => {
   window.pgState.calM += dir;
