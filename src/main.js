@@ -35,8 +35,8 @@ window.openDailyModal = (dateStr = today(), existing = null) => {
   
   document.getElementById('df-date').value = dateStr;
   document.getElementById('df-pts').value = day ? day.points : '';
-  document.getElementById('df-trades').value = day ? day.trades_count : '';
   document.getElementById('df-contracts').value = day ? day.contracts_used : state.config.monthly_default || 1;
+  document.getElementById('df-pl-val').value = day ? day.profit_loss.toFixed(2) : '';
   document.getElementById('df-setup').value = day ? day.setup : '';
   document.getElementById('df-notes').value = day ? day.notes : '';
   
@@ -76,7 +76,7 @@ window.setStar = (v) => { window.starVal = v; renderStars(v); };
 window.saveDaily = async () => {
   const pts = Number(document.getElementById('df-pts').value);
   const contracts = Number(document.getElementById('df-contracts').value);
-  const plValue = pts * contracts * 0.2; // Exemplo: Mini Índice R$ 0,20 por ponto/contrato
+  const plValue = Number(document.getElementById('df-pl-val').value);
   
   const entry = {
     id: window.currentDayId,
@@ -85,7 +85,7 @@ window.saveDaily = async () => {
     profit_loss: plValue,
     starting_balance: Number(document.getElementById('df-st').value),
     ending_balance: Number(document.getElementById('df-st').value) + plValue,
-    trades_count: Number(document.getElementById('df-trades').value),
+    trades_count: 0, // Removido do UI
     contracts_used: contracts,
     wins: plValue > 0 ? 1 : 0,
     losses: plValue < 0 ? 1 : 0,
@@ -515,19 +515,31 @@ window.logout = async () => {
   initApp(); // Back to login without splash
 };
 
-window.emergencyReset = async () => {
-  const email = prompt('Confirme o e-mail para o reset:', 'rodrigodaty@rdy.com');
-  if (!email) return;
-  
-  toast('Verificando ecossistema...', 'wait');
-  const { data, error } = await auth.signIn(email, '12345678');
-  
-  if (!error) {
-    toast('Login já funciona com 12345678!', 'pos');
-    setTimeout(() => location.reload(), 1500);
-  } else {
-    alert('⚠️ O reset manual via painel Supabase ainda é necessário se a senha for desconhecida. \n\nAcesse: Auth > Users > Edit User > Change Password');
-  }
-};
+/* ─── Real-time Calc ─────────────────── */
+function initDailyCalc() {
+  const pts = document.getElementById('df-pts');
+  const contracts = document.getElementById('df-contracts');
+  const val = document.getElementById('df-pl-val');
 
-document.addEventListener('DOMContentLoaded', initApp);
+  const sync = (source) => {
+    const pVal = Number(state.config?.point_value || 0.2);
+    const c = Number(contracts.value) || 0;
+    const p = Number(pts.value) || 0;
+    const v = Number(val.value) || 0;
+
+    if (source === 'pts' || source === 'contracts') {
+      if (c > 0) val.value = (p * c * pVal).toFixed(2);
+    } else if (source === 'val') {
+      if (c > 0 && pVal > 0) pts.value = Math.round(v / (c * pVal));
+    }
+  };
+
+  pts.oninput = () => sync('pts');
+  contracts.oninput = () => sync('contracts');
+  val.oninput = () => sync('val');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initApp();
+  initDailyCalc();
+});
