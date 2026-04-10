@@ -356,20 +356,20 @@ textarea.fi { resize: none; }
 .cal-wd { text-align: center; font-size: 10px; font-weight: 700; color: var(--text3); padding: 5px 0; text-transform: uppercase; letter-spacing: 0.8px; }
 .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
 .cd {
-  min-height: 60px; border-radius: 10px; display: flex; flex-direction: column;
-  align-items: center; justify-content: flex-start; padding: 6px 2px;
-  cursor: pointer; border: 1px solid rgba(255,255,255,0.03); position: relative; gap: 2px;
+  min-height: 100px; border-radius: 12px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 10px 4px;
+  cursor: pointer; border: 1px solid rgba(255,255,255,0.03); position: relative; gap: 6px;
   transition: all 0.2s var(--ease); background: rgba(255,255,255,0.02);
 }
-.cd:hover { transform: scale(1.04); z-index: 10; background: rgba(255,255,255,0.05); border-color: var(--glass-border); }
+.cd:hover { transform: scale(1.02); z-index: 10; background: rgba(255,255,255,0.05); border-color: var(--glass-border); }
 .cd.empty { background: transparent; cursor: default; border: none; }
 .cd.neu { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
 .cd.pos { background: rgba(0,196,113,0.08); border-color: rgba(0,196,113,0.2); }
 .cd.neg { background: rgba(255,64,64,0.08); border-color: rgba(255,64,64,0.18); }
 .cd.tod { box-shadow: 0 0 0 2px var(--xp) !important; }
-.cd-n { font-size: 12px; font-weight: 700; line-height: 1.1; }
+.cd-n { font-size: 16px; font-weight: 800; line-height: 1; }
 .cd.pos .cd-n { color: #E8EFF8; } .cd.neg .cd-n { color: #FFD0D8; } .cd.neu .cd-n { color: var(--text2); }
-.cd-v { font-size: 10px; font-weight: 800; line-height: 1.2; letter-spacing: -0.2px; }
+.cd-v { font-size: 13px; font-weight: 800; line-height: 1; letter-spacing: -0.5px; }
 .cd.pos .cd-v { color: var(--green); } .cd.neg .cd-v { color: var(--red); }
 .cd-pct { font-size: 8px; color: rgba(0,180,120,0.55); font-weight: 700; line-height: 1; }
 .cd.neg .cd-pct { color: rgba(255,100,120,0.55); }
