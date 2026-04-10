@@ -166,12 +166,19 @@ window.openSettingsMo = () => {
 window.saveSettings = async () => {
   const name = document.getElementById('cfg-name').value;
   const cardName = document.getElementById('cfg-card-name').value;
+  
+  // Robust numeric parsing (handles commas from Brazilian keyboards)
+  const parseNum = (id) => {
+    const val = document.getElementById(id).value.replace(',', '.');
+    return Number(val) || 0;
+  };
+
   const cfg = {
-    starting_capital: Number(document.getElementById('cfg-cap').value),
-    monthly_goal: Number(document.getElementById('cfg-goal').value),
-    contract_rule_value: Number(document.getElementById('cfg-rule').value),
-    point_value: Number(document.getElementById('cfg-point-val').value),
-    tax_rate: Number(document.getElementById('cfg-tax-rate').value)
+    starting_capital: parseNum('cfg-cap'),
+    monthly_goal: parseNum('cfg-goal'),
+    contract_rule_value: parseNum('cfg-rule'),
+    point_value: parseNum('cfg-point-val'),
+    tax_rate: parseNum('cfg-tax-rate')
   };
   
   const [res1, res2] = await Promise.all([
@@ -182,9 +189,10 @@ window.saveSettings = async () => {
   if (!res1.error && !res2.error) { 
     toast('Configurações salvas'); 
     closeMo(); 
-    showPage('dashboard'); // Refresh to show new card name
+    showPage('dashboard'); 
   } else {
-    toast('Erro ao salvar algumas configurações', 'err');
+    const errMsg = (res1.error?.message || res1.error) || (res2.error?.message || res2.error) || 'Erro desconhecido';
+    toast('Erro: ' + errMsg, 'err');
     console.error('Save Profiles Error:', res1.error);
     console.error('Save Config Error:', res2.error);
   }
