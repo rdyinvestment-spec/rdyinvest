@@ -536,8 +536,14 @@ function initDailyCalc() {
   const sync = (source) => {
     const pVal = Number(state.config?.point_value || 0.2);
     const c = Number(contracts.value) || 0;
-    const p = Number(pts.value) || 0;
-    const v = Number(val.value) || 0;
+    
+    // Allow typing '-' without immediate sync to 0
+    const rawPts = pts.value;
+    const rawVal = val.value;
+    if (rawPts === '-' || rawVal === '-') return;
+
+    const p = Number(rawPts) || 0;
+    const v = Number(rawVal) || 0;
 
     if (source === 'pts' || source === 'contracts') {
       if (c > 0) val.value = (p * c * pVal).toFixed(2);
