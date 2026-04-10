@@ -437,12 +437,32 @@ textarea.fi { resize: none; }
   transition: all 0.3s var(--ease); background: rgba(255,255,255,0.02);
 }
 @media (max-width: 600px) {
-  .cal-mo { font-size: 24px; }
-  .cal-grid { gap: 4px; }
-  .cd { min-height: 80px; border-radius: 10px; gap: 2px; }
-  .cd-n { font-size: 16px; }
-  .cd-v { font-size: 11px; }
-  .cd-pct { font-size: 9px; }
+  .cal-mo { font-size: 22px; }
+  .cal-grid { gap: 3px; }
+  .cal-wd { font-size: 8px; letter-spacing: 0; padding: 3px 0; }
+  .cd {
+    min-height: 68px;
+    border-radius: 8px;
+    gap: 1px;
+    padding: 6px 2px;
+  }
+  .cd-n { font-size: 14px; }
+  .cd-v {
+    font-size: 9px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 90%;
+    text-align: center;
+  }
+  .cd-pct { display: none; }
+}
+@media (max-width: 380px) {
+  .cal-grid { gap: 2px; }
+  .cd { min-height: 56px; border-radius: 6px; }
+  .cd-n { font-size: 12px; }
+  .cd-v { font-size: 8px; }
 }
 .cd:hover { transform: translateY(-4px) scale(1.02); z-index: 10; background: rgba(255,255,255,0.05); border-color: rgba(255, 209, 0, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
 .cd.empty { background: transparent; cursor: default; border: none; }
@@ -729,5 +749,20 @@ textarea.fi { resize: none; }
 }
 
 @media (max-width: 768px) {
-  .hero-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  /* Oculta o card 3D no mobile — economiza espaço vertical */
+  .hero-visual { display: none !important; }
+
+  /* Hero text: centralizado e compacto no mobile */
+  .hero-grid > div:first-child {
+    max-width: 100% !important;
+    text-align: left;
+  }
+  #daily-verse {
+    font-size: 13px !important;
+    margin-bottom: 16px !important;
+  }
 }

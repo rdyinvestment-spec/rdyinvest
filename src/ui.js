@@ -414,8 +414,8 @@ function pgCalendar() {
   const prevDays = new Date(year, month, 0).getDate();
   
   let html = `
-    <div style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
-      
+    <div class="dash-content" style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
+
       <!-- Calendar Header -->
       <div class="cal-hdr" style="margin-bottom: 32px">
         <div>
@@ -557,8 +557,8 @@ function pgReports() {
   const c = CALC();
 
   let html = `
-    <div style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
-      
+    <div class="dash-content" style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
+
       <div style="margin-bottom: 40px">
         <h1 style="font-size: clamp(28px, 4vw, 36px); font-weight: 900; letter-spacing: -2px; margin-bottom: 24px">Relatórios & <span style="color: var(--xp)">Insights</span></h1>
         
@@ -763,7 +763,7 @@ function pgSettings() {
   ].sort((a,b) => b.date.localeCompare(a.date));
 
   return `
-    <div style="max-width: 1200px; margin: 0 auto; padding: 40px 24px">
+    <div class="dash-content" style="max-width: 1200px; margin: 0 auto; padding: 40px 24px">
       <h2 style="font-size: 28px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 32px">Configurações & <span style="color: var(--xp)">Perfil</span></h2>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px">
@@ -847,7 +847,7 @@ function pgAdmin() {
   const feed = calcGlobalFeed();
   
   return `
-    <div style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
+    <div class="dash-content" style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
       <div style="margin-bottom: 40px">
         <div style="font-size: 12px; font-weight: 700; color: var(--xp); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px">CENTRAL DE COMANDO ELITE</div>
         <h1 style="font-size: 36px; font-weight: 900; letter-spacing: -2.5px">Portal <span style="color: var(--xp)">Administrativo</span></h1>
