@@ -3,84 +3,266 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>RDY Investment - Luxury Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>RDY Investment</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  
-  <!-- Splash Screen -->
-  <div id="splash" style="position:fixed; inset:0; background:var(--bg); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.5s ease">
-    <div style="font-size:32px; font-weight:800; color:var(--blue); letter-spacing:4px">RDY</div>
-    <div style="font-size:10px; color:var(--text3); text-transform:uppercase; margin-top:8px">Luxury Investment Dashboard</div>
-  </div>
 
-  <!-- screen-auth: Aparece se não estiver logado -->
-  <div id="screen-auth" style="display:none; min-height:100vh; flex-direction:column; justify-content:center; padding:24px; background:var(--bg)">
-    <div style="text-align:center; margin-bottom:40px">
-      <div style="font-size:48px; font-weight:800; color:var(--blue); margin-bottom:8px">RDY</div>
-      <div style="color:var(--text3)">Acesse sua plataforma profissional</div>
-    </div>
-    <div class="card" style="max-width:400px; margin: 0 auto; width:100%">
-      <input type="email" id="tf-email" class="fi" placeholder="Seu e-mail" />
-      <input type="password" id="tf-pass" class="fi" placeholder="Sua senha" />
-      <button id="btn-login" class="btn btn-blue">ACESSAR DASHBOARD</button>
+  <!-- Splash -->
+  <div id="splash" style="position:fixed; inset:0; background:var(--bg); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)">
+    <div id="splash-text-wrap" style="text-align:center; transition: transform 0.6s ease, opacity 0.4s ease">
+      <div id="splash-word" style="font-family:'Inter',sans-serif; font-size:64px; font-weight:900; color:var(--xp); letter-spacing:-3px; text-transform:uppercase">RDY</div>
     </div>
   </div>
 
-  <!-- screen-app: O App principal -->
-  <div id="screen-app" style="display:none; padding-bottom:100px">
-    <!-- Header -->
-    <header style="padding:20px 16px; position:sticky; top:0; background:rgba(8, 11, 15, 0.8); backdrop-filter:blur(10px); z-index:100">
-      <div style="display:flex; justify-content:space-between; align-items:center">
-        <div style="font-weight:800; font-size:18px; color:var(--blue)">RDY <span style="font-weight:300; color:var(--text)">INVEST</span></div>
-        <div style="display:flex; gap:12px">
-          <button style="background:none; border:none; color:var(--text3); font-size:20px">🔔</button>
-          <div style="width:32px; height:32px; border-radius:50%; background:var(--blue-dim); border:1px solid var(--blue); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700">RD</div>
+  <!-- Elite Auth Portal -->
+  <div id="screen-login" style="display:none; position:fixed; inset:0; background:radial-gradient(circle at center, #111 0%, #000 100%); z-index:9990; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px">
+    <div style="text-align:center; margin-bottom:48px; transition: transform 0.8s var(--ease)">
+      <div style="font-family:'Inter',sans-serif; font-size:64px; font-weight:900; color:var(--xp); letter-spacing:-3px; line-height:0.9">RDY</div>
+      <div style="font-size:12px; color:var(--text3); text-transform:uppercase; margin-top:12px; letter-spacing:4px; font-weight:800">INVESTMENT LEGACY</div>
+    </div>
+    
+    <div class="card" style="width:100%; max-width:420px; padding:48px; background: rgba(10,10,10,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 40px 80px rgba(0,0,0,0.9)">
+      <div style="font-size:24px; font-weight:900; letter-spacing:-0.5px; margin-bottom:8px">Bem-vindo</div>
+      <div style="font-size:14px; color:var(--text3); margin-bottom:32px">Acesse sua conta para operar no modo Elite.</div>
+      
+      <div style="margin-bottom:20px">
+        <label class="fl-lb" style="margin-bottom:8px; display:block">E-mail Corporativo</label>
+        <input type="email" id="tf-login-email" class="fi" placeholder="exemplo@rdy.com" />
+      </div>
+      <div style="margin-bottom:32px">
+        <label class="fl-lb" style="margin-bottom:8px; display:block">Sua Senha</label>
+        <input type="password" id="tf-login-pass" class="fi" placeholder="••••••••" />
+      </div>
+      
+      <button id="btn-do-login" class="btn btn-xp" style="width:100%; height:52px; font-size:16px">Entrar na Plataforma</button>
+      
+      <div style="text-align:center; margin-top:24px; font-size:13px; color:var(--text3)">
+        Novo por aqui? 
+        <span onclick="toggleAuth('register')" style="color:var(--xp); font-weight:800; cursor:pointer; margin-left:4px; border-bottom:1px solid rgba(255,209,0,0.3)">Criar conta de membro</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-register" style="display:none; position:fixed; inset:0; background:radial-gradient(circle at center, #111 0%, #000 100%); z-index:9990; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px">
+    <div style="text-align:center; margin-bottom:48px">
+      <div style="font-family:'Inter',sans-serif; font-size:64px; font-weight:900; color:var(--xp); letter-spacing:-3px; line-height:0.9">RDY</div>
+    </div>
+    
+    <div class="card" style="width:100%; max-width:420px; padding:48px; background: rgba(10,10,10,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06)">
+      <div style="font-size:24px; font-weight:900; letter-spacing:-0.5px; margin-bottom:8px">Membro Elite</div>
+      <div style="font-size:14px; color:var(--text3); margin-bottom:32px">Solicite seu acesso ao ecossistema RDY.</div>
+      
+      <div style="margin-bottom:16px">
+        <label class="fl-lb" style="margin-bottom:8px; display:block">Nome Completo</label>
+        <input type="text" id="tf-reg-name" class="fi" placeholder="Como devemos chamá-lo?" />
+      </div>
+      <div style="margin-bottom:16px">
+        <label class="fl-lb" style="margin-bottom:8px; display:block">E-mail</label>
+        <input type="email" id="tf-reg-email" class="fi" placeholder="seu@email.com" />
+      </div>
+      <div style="margin-bottom:32px">
+        <label class="fl-lb" style="margin-bottom:8px; display:block">Senha de Acesso</label>
+        <input type="password" id="tf-reg-pass" class="fi" placeholder="Mínimo 8 caracteres" />
+      </div>
+      
+      <button id="btn-do-register" class="btn btn-xp" style="width:100%; height:52px; font-size:16px">Finalizar Cadastro</button>
+      
+      <div style="text-align:center; margin-top:24px; font-size:13px; color:var(--text3)">
+        Já possui acesso? 
+        <span onclick="toggleAuth('login')" style="color:var(--xp); font-weight:800; cursor:pointer; margin-left:4px; border-bottom:1px solid rgba(255,209,0,0.3)">Fazer Login</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="screen-app" style="display:none; padding-bottom:104px">
+
+    <header style="padding:0 24px; height:72px; position:sticky; top:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); z-index:100; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center">
+      <div style="display:flex; align-items:center; gap:32px">
+        <div style="font-family:'Inter',sans-serif; font-size:24px; font-weight:900; color:#FFD100; letter-spacing:-1.5px; cursor:pointer">RDY</div>
+      </div>
+      <div style="display:flex; gap:16px; align-items:center">
+        <div id="header-user-avatar" style="width:40px; height:40px; border-radius:10px; background:var(--xp); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; color:#000; box-shadow:0 0 15px var(--xp-glow)">
+          U
         </div>
       </div>
     </header>
 
-    <main id="page-content" style="padding:16px"></main>
+    <main id="page-content" style="max-width:1200px; margin:0 auto"></main>
 
     <!-- Bottom Nav -->
     <nav class="nav">
       <a href="javascript:void(0)" class="nav-i active" data-page="dashboard" onclick="showPage('dashboard')">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        Dashboard
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home</span>
       </a>
       <a href="javascript:void(0)" class="nav-i" data-page="calendar" onclick="showPage('calendar')">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        Calendário
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <span>Agenda</span>
       </a>
-      
-      <div class="fab" onclick="onFab()">
-        <svg style="width:28px; height:28px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+
+      <div class="fab" onclick="window.onFab && window.onFab()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
       </div>
 
       <a href="javascript:void(0)" class="nav-i" data-page="reports" onclick="showPage('reports')">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        Relatórios
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Insights</span>
       </a>
       <a href="javascript:void(0)" class="nav-i" data-page="settings" onclick="showPage('settings')">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        Perfil
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span>Perfil</span>
       </a>
     </nav>
   </div>
 
-  <script type="module" src="/src/main.js"></script>
+  <!-- Modal: Daily Entry -->
+  <div id="mo-daily" class="mo" onclick="if(event.target===this)closeMo()">
+    <div class="ms">
+      <div class="mh" onclick="closeMo()"><div style="width:40px;height:4px;background:#333;border-radius:2px;margin:0 auto"></div></div>
+      <div class="mt">
+        <h3 style="font-size:20px;font-weight:900;margin-bottom:20px">Lançamento de <span style="color:var(--xp)">Operações</span></h3>
+        <div class="mf">
+          <div class="fr">
+            <div class="fl"><label class="fl-lb">Data</label><input type="date" id="df-date" class="fi"></div>
+            <div class="fl"><label class="fl-lb">Pontos</label><input type="number" id="df-pts" class="fi" placeholder="0"></div>
+          </div>
+          <div class="fr">
+            <div class="fl"><label class="fl-lb">Contratos</label><input type="number" id="df-contracts" class="fi"></div>
+            <div class="fl"><label class="fl-lb">Saldo Inicial</label><input type="number" id="df-st" class="fi" readonly style="opacity:0.6"></div>
+          </div>
+          <div class="fr">
+            <div class="fl"><label class="fl-lb">Wins</label><input type="number" id="df-wins" class="fi" placeholder="0"></div>
+            <div class="fl"><label class="fl-lb">Losses</label><input type="number" id="df-losses" class="fi" placeholder="0"></div>
+            <div class="fl"><label class="fl-lb">Trades</label><input type="number" id="df-trades" class="fi" placeholder="0"></div>
+          </div>
+          <div class="fl"><label class="fl-lb">Estratégia/Setup</label><input type="text" id="df-setup" class="fi" placeholder="Ex: Pullback"></div>
+          
+          <div style="margin:12px 0">
+            <div class="tog-row">
+              <span class="tog-lb">Seguiu o Plano?</span>
+              <div id="tog-plan" class="tog on" onclick="toggleTog('tog-plan')"></div>
+            </div>
+            <div class="tog-row">
+              <span class="tog-lb">Fez Overtrade?</span>
+              <div id="tog-over" class="tog" onclick="toggleTog('tog-over')"></div>
+            </div>
+            <div class="tog-row">
+              <span class="tog-lb">Revenge Trading?</span>
+              <div id="tog-rev" class="tog" onclick="toggleTog('tog-rev')"></div>
+            </div>
+          </div>
+
+          <div style="margin:20px 0">
+            <label class="fl-lb">Estado Emocional</label>
+            <div class="stars">
+              <span class="star" onclick="setStar(1)">★</span>
+              <span class="star" onclick="setStar(2)">★</span>
+              <span class="star" onclick="setStar(3)">★</span>
+              <span class="star" onclick="setStar(4)">★</span>
+              <span class="star" onclick="setStar(5)">★</span>
+            </div>
+          </div>
+
+          <div class="fl"><label class="fl-lb">Notas Mentais</label><textarea id="df-notes" class="fi" style="height:80px;resize:none" placeholder="Como você se sentiu hoje?"></textarea></div>
+          
+          <button class="btn btn-xp" onclick="saveDaily()" style="margin-top:20px">Salvar Dia</button>
+          <div id="df-del-wrap" style="margin-top:12px;text-align:center">
+            <button class="btn btn-ghost" onclick="deleteDay()" style="color:var(--red);border-color:rgba(255,64,64,0.2)">Excluir Registro</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Deposit -->
+  <div id="mo-dep" class="mo" onclick="if(event.target===this)closeMo()">
+    <div class="ms">
+      <div class="mh" onclick="closeMo()"></div>
+      <div class="mt">
+        <h3 class="shdr-t">Novo Aporte</h3>
+        <div class="mf" style="margin-top:20px">
+          <input type="date" id="dep-date" class="fi">
+          <input type="number" id="dep-amt" class="fi" placeholder="Valor R$">
+          <input type="text" id="dep-desc" class="fi" placeholder="Descrição (opcional)">
+          <button class="btn btn-xp" onclick="saveDeposit()">Confirmar Aporte</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Withdrawal -->
+  <div id="mo-wd" class="mo" onclick="if(event.target===this)closeMo()">
+    <div class="ms">
+      <div class="mh" onclick="closeMo()"></div>
+      <div class="mt">
+        <h3 class="shdr-t">Nova Retirada</h3>
+        <div class="mf" style="margin-top:20px">
+          <input type="date" id="wd-date" class="fi">
+          <input type="number" id="wd-amt" class="fi" placeholder="Valor R$">
+          <input type="text" id="wd-desc" class="fi" placeholder="Descrição (opcional)">
+          <button class="btn btn-xp" onclick="saveWithdrawal()">Confirmar Saque</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Settings -->
+  <div id="mo-settings" class="mo" onclick="if(event.target===this)closeMo()">
+    <div class="ms">
+      <div class="mh" onclick="closeMo()"></div>
+      <div class="mt">
+        <h3 class="shdr-t">Configurações Base</h3>
+        <div class="mf" style="margin-top:20px">
+          <div class="fl"><label class="fl-lb">Nome Completo</label><input type="text" id="cfg-name" class="fi"></div>
+          <div class="fl"><label class="fl-lb">Capital Inicial</label><input type="number" id="cfg-cap" class="fi"></div>
+          <div class="fl"><label class="fl-lb">Meta Mensal (R$)</label><input type="number" id="cfg-goal" class="fi"></div>
+          <div class="fl"><label class="fl-lb">Regra: R$ por Contrato</label><input type="number" id="cfg-rule" class="fi"></div>
+          <button class="btn btn-xp" onclick="saveSettings()">Salvar Alterações</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
   <script>
-    // Simple splash hide for demo
-    setTimeout(() => {
+    window.toggleAuth = (screen) => {
+      const login = document.getElementById('screen-login');
+      const reg = document.getElementById('screen-register');
+      login.style.display = 'none';
+      reg.style.display = 'none';
+      document.getElementById('screen-' + screen).style.display = 'flex';
+    };
+    window.addEventListener('DOMContentLoaded', async () => {
       const splash = document.getElementById('splash');
-      if (splash) {
-        splash.style.opacity = '0';
-        setTimeout(() => splash.style.display = 'none', 500);
+      const word = document.getElementById('splash-word');
+      const wrap = document.getElementById('splash-text-wrap');
+      const sequence = ['RDY', 'INVESTMENT', 'PERFORMANCE', 'EXPERIENCE'];
+      
+      const wait = (ms) => new Promise(res => setTimeout(res, ms));
+      
+      for (let i = 0; i < sequence.length; i++) {
+        word.innerText = sequence[i];
+        wrap.style.opacity = '1';
+        wrap.style.transform = 'scale(1)';
+        await wait(600);
+        if (i < sequence.length - 1) {
+          wrap.style.opacity = '0';
+          wrap.style.transform = 'scale(0.95)';
+          await wait(300);
+        }
       }
-    }, 2000);
+      
+      splash.style.opacity = '0';
+      setTimeout(() => splash.remove(), 800);
+    });
   </script>
+
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>
