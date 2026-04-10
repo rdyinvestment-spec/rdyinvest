@@ -70,10 +70,6 @@ function pgDashboard() {
           <h1 style="font-size: clamp(32px, 5vw, 56px); font-weight: 900; line-height: 1.1; letter-spacing: -2px; margin-bottom: 24px">RDY Investment <span style="color: var(--text3)">Legacy</span></h1>
           <p id="daily-verse" style="font-size: 16px; color: var(--text2); margin-bottom: 32px; max-width: 520px; font-style: italic; border-left: 3px solid var(--xp); padding-left: 16px; line-height: 1.6">${getDailyVerse()}</p>
           
-          <div style="display: flex; gap: 12px; flex-wrap: wrap">
-            <button class="btn btn-xp" onclick="showPage('calendar')">Começar a Operar</button>
-            <button class="btn btn-ghost" onclick="showPage('reports')">Ver Insights</button>
-          </div>
         </div>
 
         <!-- Right Column: Card Visual -->
