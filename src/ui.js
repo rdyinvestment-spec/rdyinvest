@@ -127,7 +127,7 @@ function pgDashboard() {
     </div>
 
     <!-- Dashboard Content -->
-    <div style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
+    <div class="dash-content" style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
       
       <div class="pg-hd" style="flex-wrap: wrap; gap: 16px">
         <div>
@@ -162,7 +162,7 @@ function pgDashboard() {
             <span style="font-size: 10px; font-weight: 800; color: var(--text3)">CONTA REAL BRL</span>
           </div>
           <div style="margin: 32px 0">
-            <div class="mono" style="font-size: 64px; font-weight: 900; letter-spacing: -4px; color: ${c.balance >= 0 ? 'var(--green)' : 'var(--red)'}">${fR(c.balance)}</div>
+            <div class="mono" style="font-size: clamp(32px, 12vw, 64px); font-weight: 900; letter-spacing: -4px; color: ${c.balance >= 0 ? 'var(--green)' : 'var(--red)'}; line-height: 1; word-break: break-all">${fR(c.balance)}</div>
             <div style="display: flex; gap: 12px; margin-top: 16px; align-items: center">
               <span class="badge ${c.wr >= 50 ? 'badge-pos' : 'badge-neg'}" style="border-radius: 4px; padding: 4px 10px; font-size: 11px">Win Rate: ${fPct(c.wr)}</span>
               <span style="font-size: 14px; font-weight: 700; color: var(--text3)">${fR(c.totalPL)} <span class="${cv(c.totalPL)}" style="font-size: 12px; margin-left: 4px">(${c.totalPL > 0 ? '+' : ''}${((c.totalPL / (c.startCap || 1)) * 100).toFixed(2)}%)</span></span>
@@ -294,9 +294,9 @@ function pgDashboard() {
           const lossDays = days.filter(d => Number(d.profit_loss) < 0).length;
 
           const kpi = (label, val, sub, color = 'var(--text1)') => `
-            <div style="padding: 16px 18px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column">
-              <div style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; min-height: 24px; display: flex; align-items: flex-start">${label}</div>
-              <div class="mono" style="font-size: 22px; font-weight: 900; color: ${color}; letter-spacing: -1px; margin-top: 4px">${val}</div>
+            <div style="padding: 16px 18px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden">
+              <div style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; min-height: 24px; display: flex; align-items: flex-start; line-height: 1.2">${label}</div>
+              <div class="mono" style="font-size: clamp(16px, 5vw, 22px); font-weight: 900; color: ${color}; letter-spacing: -1px; margin-top: 4px; overflow: hidden; text-overflow: ellipsis">${val}</div>
               ${sub ? `<div style="font-size: 10px; color: var(--text3); margin-top: 5px; font-weight: 600">${sub}</div>` : ''}
             </div>`;
 
