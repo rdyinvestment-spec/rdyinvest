@@ -14,6 +14,7 @@ window.showPage = (page) => {
     window.pgState.repY = new Date().getFullYear();
   }
   renderPage(page);
+  window.scrollTo(0, 0);
   document.querySelectorAll('.nav-i').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
   });
@@ -210,17 +211,20 @@ window.openMovModal = () => {
 
     list.innerHTML = `
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 32px">
-        <div class="card card-indicator pos">
-          <div class="indicator-label">Aportes</div>
-          <div class="indicator-val mono" style="color: var(--green)">+${fR(totalDep)}</div>
+        <div class="card" style="padding: 20px 16px; display: flex; flex-direction: column; min-width: 0">
+          <div style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px">Aportes</div>
+          <div class="mono" style="font-size: clamp(14px, 1.8vw, 18px); font-weight: 900; color: var(--green); overflow: hidden; text-overflow: ellipsis; white-space: nowrap">+${fR(totalDep)}</div>
+          <div style="font-size: 10px; color: var(--text3); margin-top: 6px; font-weight: 600; white-space: nowrap">${state.deposits.length} realizados</div>
         </div>
-        <div class="card card-indicator neg">
-          <div class="indicator-label">Resgates</div>
-          <div class="indicator-val mono" style="color: var(--red)">-${fR(totalWd)}</div>
+        <div class="card" style="padding: 20px 16px; display: flex; flex-direction: column; min-width: 0">
+          <div style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px">Resgates</div>
+          <div class="mono" style="font-size: clamp(14px, 1.8vw, 18px); font-weight: 900; color: var(--red); overflow: hidden; text-overflow: ellipsis; white-space: nowrap">-${fR(totalWd)}</div>
+          <div style="font-size: 10px; color: var(--text3); margin-top: 6px; font-weight: 600; white-space: nowrap">${state.withdrawals.length} realizados</div>
         </div>
-        <div class="card card-indicator ${saldo >= 0 ? 'pos' : 'neg'}">
-          <div class="indicator-label">Saldo</div>
-          <div class="indicator-val mono" style="color: ${saldo >= 0 ? 'var(--green)' : 'var(--red)'}">${fR(saldo)}</div>
+        <div class="card" style="padding: 20px 16px; display: flex; flex-direction: column; min-width: 0">
+          <div style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px">Saldo</div>
+          <div class="mono" style="font-size: clamp(14px, 1.8vw, 18px); font-weight: 900; color: ${saldo >= 0 ? 'var(--green)' : 'var(--red)'}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">${fR(saldo)}</div>
+          <div style="font-size: 10px; color: var(--text3); margin-top: 6px; font-weight: 600; white-space: nowrap">Saldo em Conta</div>
         </div>
       </div>
       <div>
@@ -341,17 +345,6 @@ window.resetEverything = async () => {
   }
 };
 
-/* ─── Navigation & Tabs ──────────────── */
-window.calNav = (dir) => {
-  window.pgState.calM += dir;
-  if (window.pgState.calM > 11) { window.pgState.calM = 0; window.pgState.calY++; }
-  else if (window.pgState.calM < 0) { window.pgState.calM = 11; window.pgState.calY--; }
-  showPage('calendar');
-};
-
-window.calClick = (date) => openDailyModal(date);
-
-window.setRepTab = (tab) => { window.pgState.repTab = tab; showPage('reports'); };
 
 /* ─── Calculators ────────────────────── */
 window.calcProj = () => {
@@ -500,6 +493,7 @@ window.setDashFilter = (f) => {
     window.pgState.customTo = now.toISOString().slice(0, 10);
   }
   renderPage('dashboard');
+  window.scrollTo(0, 0);
 };
 
 window.applyCustomRange = () => {
@@ -508,6 +502,7 @@ window.applyCustomRange = () => {
   if (from) window.pgState.customFrom = from;
   if (to) window.pgState.customTo = to;
   renderPage('dashboard');
+  window.scrollTo(0, 0);
 };
 
 window.changeRepMonth = (diff) => {
@@ -518,17 +513,30 @@ window.changeRepMonth = (diff) => {
   window.pgState.repM = m;
   window.pgState.repY = y;
   renderPage('reports');
+  window.scrollTo(0, 0);
 };
+
+window.calNav = (dir) => {
+  window.pgState.calM += dir;
+  if (window.pgState.calM > 11) { window.pgState.calM = 0; window.pgState.calY++; }
+  else if (window.pgState.calM < 0) { window.pgState.calM = 11; window.pgState.calY--; }
+  renderPage('calendar');
+  window.scrollTo(0, 0);
+};
+
+window.calClick = (date) => openDailyModal(date);
 
 window.setRepTab = (t) => {
   window.pgState.repTab = t;
   renderPage('reports');
+  window.scrollTo(0, 0);
 };
 
 window.setRepRange = (type, val) => {
   if (type === 'start') window.pgState.repStart = val;
   if (type === 'end') window.pgState.repEnd = val;
   renderPage('reports');
+  window.scrollTo(0, 0);
 };
 
 /* ─── Auth & Init ────────────────────── */
@@ -644,6 +652,13 @@ function initAuthFlow() {
 window.logout = async () => {
   await auth.signOut();
   initApp(); // Back to login without splash
+};
+
+window.emergencyReset = () => {
+  if (confirm('Reset de emergência: limpa cache local e recarrega o app. Use apenas se estiver com problemas de acesso. Continuar?')) {
+    localStorage.clear();
+    location.reload();
+  }
 };
 
 /* ─── Real-time Calc ─────────────────── */

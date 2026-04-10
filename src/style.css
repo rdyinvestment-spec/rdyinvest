@@ -15,6 +15,7 @@
   --xp-dim:  rgba(255, 209, 0, 0.10);
   --xp-glow: rgba(255, 209, 0, 0.25);
   --text:  #FFFFFF;
+  --text1: #FFFFFF;
   --text2: #A0A0A0;
   --text3: #606060;
   --green:      #00E676;
@@ -41,6 +42,7 @@
   --bg3:  #ECEEF2;
   --bg4:  #E0E3EA;
   --text:  #0D0F14;
+  --text1: #0D0F14;
   --text2: #5A6070;
   --text3: #9AA0B2;
   --border:  rgba(0, 0, 0, 0.06);

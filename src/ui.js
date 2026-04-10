@@ -157,17 +157,18 @@ function pgDashboard() {
           </div>
         </div>
 
-        <!-- Aportes/Saques Indicator Cards -->
-        <div class="card card-indicator" style="border-left: none">
-          <div class="indicator-label">Total Aportado</div>
-          <div class="indicator-val mono" style="color: var(--xp); font-size: 24px">${fR(c.depSum)}</div>
-          <div style="font-size: 11px; color: var(--text3); margin-top: 4px">Fundos em conta</div>
+        <!-- Row 2: Indicators & Chart -->
+        <!-- Row 2: Indicators & Chart -->
+        <div class="card" style="padding: 24px 28px; display: flex; flex-direction: column; justify-content: center; min-width: 0">
+          <div style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px">Total Aportado</div>
+          <div class="mono" style="font-size: clamp(20px, 2.5vw, 24px); font-weight: 900; color: var(--xp); overflow: hidden; text-overflow: ellipsis; white-space: nowrap">${fR(c.depSum)}</div>
+          <div style="font-size: 11px; color: var(--text3); margin-top: 8px; font-weight: 600; white-space: nowrap">${state.deposits.length} aportes realizados</div>
         </div>
 
-        <div class="card card-indicator" style="border-left: none; --xp: var(--text3)">
-          <div class="indicator-label">Total Sacado</div>
-          <div class="indicator-val mono" style="color: var(--text2); font-size: 24px">${fR(c.wdSum)}</div>
-          <div style="font-size: 11px; color: var(--text3); margin-top: 4px">Retiradas efetuadas</div>
+        <div class="card" style="padding: 24px 28px; display: flex; flex-direction: column; justify-content: center; min-width: 0">
+          <div style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px">Total Sacado</div>
+          <div class="mono" style="font-size: clamp(20px, 2.5vw, 24px); font-weight: 900; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap">${fR(c.wdSum)}</div>
+          <div style="font-size: 11px; color: var(--text3); margin-top: 8px; font-weight: 600; white-space: nowrap">${state.withdrawals.length} retiradas realizadas</div>
         </div>
 
         <!-- Curva de Capital -->
@@ -184,17 +185,64 @@ function pgDashboard() {
           <div class="shdr"><span class="shdr-t">Custos Operacionais</span></div>
           <div style="margin-top: 12px">
             <div style="display: flex; justify-content: space-between; margin-bottom: 12px">
-              <span style="font-size: 12px; color: var(--text3); font-weight: 600">Corretagem (Contratos)</span>
-              <span class="mono" style="color: var(--red); font-size: 16px">-${fR(c.totalBro)}</span>
+              <span style="font-size: 11px; color: var(--text3); font-weight: 600">Corretagem</span>
+              <span class="mono" style="color: var(--red); font-size: 15px">-${fR(c.totalBro)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 12px">
-              <span style="font-size: 12px; color: var(--text3); font-weight: 600">IRPF Provisório (1%)</span>
-              <span class="mono" style="color: var(--red); font-size: 16px">-${fR(c.totalIR)}</span>
+              <span style="font-size: 11px; color: var(--text3); font-weight: 600">IRPF (1%)</span>
+              <span class="mono" style="color: var(--red); font-size: 15px">-${fR(c.totalIR)}</span>
             </div>
             <div style="border-top: 1px solid var(--border); padding-top: 12px; display: flex; justify-content: space-between; align-items:center">
-              <span style="font-size: 11px; color: var(--text2); font-weight: 800; text-transform: uppercase">Total Deduções</span>
-              <span class="mono" style="color: var(--red); font-size: 16px">-${fR(c.totalBro + c.totalIR)}</span>
+              <span style="font-size: 10px; color: var(--text2); font-weight: 800; text-transform: uppercase">Deduções</span>
+              <span class="mono" style="color: var(--red); font-size: 15px">-${fR(c.totalBro + c.totalIR)}</span>
             </div>
+          </div>
+        </div>
+
+        <!-- Meta do Mês -->
+        <div class="card">
+          <div class="shdr">
+            <span class="shdr-t">Meta do Mês</span>
+            <span style="font-size: 10px; font-weight: 800; color: var(--text3)">${((c.mPL / (c.gMonthly || 1)) * 100).toFixed(0)}%</span>
+          </div>
+          <div style="margin-top: 16px">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px">
+              <span class="mono" style="font-size: 20px; font-weight: 900; color: ${c.mPL >= 0 ? 'var(--green)' : 'var(--red)'}">${fR(c.mPL)}</span>
+              <span style="font-size: 10px; color: var(--text3); font-weight: 700">Meta: ${fR(c.gMonthly)}</span>
+            </div>
+            <!-- Progress Bar -->
+            <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden">
+              <div style="height: 100%; width: ${Math.min(100, Math.max(0, (c.mPL / (c.gMonthly || 1)) * 100))}%; background: ${c.mPL >= c.gMonthly ? 'var(--green)' : 'var(--xp)'}; box-shadow: 0 0 10px ${c.mPL >= c.gMonthly ? 'var(--green-dim)' : 'var(--xp-glow)'}; transition: width 1s ease"></div>
+            </div>
+            <div style="font-size: 10px; color: var(--text3); margin-top: 10px; font-weight: 600">
+              ${c.mPL >= c.gMonthly ? 'Meta atingida! 🚀' : `Faltam ${fR(Math.max(0, c.gMonthly - c.mPL))} para o objetivo.`}
+            </div>
+          </div>
+        </div>
+
+        <!-- Atividades Recentes -->
+        <div class="card card-lg" style="grid-column: span 2">
+          <div class="shdr">
+            <span class="shdr-t">Atividade Recente</span>
+            <span style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px">Últimos 3 dias</span>
+          </div>
+          <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px">
+            ${(() => {
+              const lastDays = [...state.days].sort((a,b) => b.date.localeCompare(a.date)).slice(0, 3);
+              if (!lastDays.length) return `<div style="padding: 20px; text-align: center; font-size: 12px; color: var(--text3)">Nenhuma operação registrada ainda.</div>`;
+              return lastDays.map(d => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid rgba(255,255,255,0.03)">
+                  <div style="display: flex; flex-direction: column">
+                    <span style="font-size: 11px; font-weight: 800; color: var(--text1)">${new Date(d.date + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit', month:'short'})}</span>
+                    <span style="font-size: 10px; color: var(--text3); font-weight: 600">${d.setup || 'Sem setup'}</span>
+                  </div>
+                  <div style="text-align: right">
+                    <div class="mono" style="font-size: 14px; font-weight: 900; color: ${d.profit_loss >= 0 ? 'var(--green)' : 'var(--red)'}">${d.profit_loss >= 0 ? '+' : ''}${fR(d.profit_loss)}</div>
+                    <div style="font-size: 9px; color: var(--text3); font-weight: 700">${d.wins}G / ${d.losses}P</div>
+                  </div>
+                </div>
+              `).join('');
+            })()}
           </div>
         </div>
 
@@ -259,8 +307,10 @@ function pgDashboard() {
 
 function calcGrowth(days) {
   if (!days || days.length < 2) return 0;
-  const start = days[0].ending_balance || 1;
-  const end = days[days.length - 1].ending_balance;
+  const eq = CALC().equity;
+  if (!eq || eq.length < 2) return 0;
+  const start = eq[0].y || 1;
+  const end = eq[eq.length - 1].y;
   return ((end - start) / start) * 100;
 }
 
@@ -303,12 +353,13 @@ function mountDashboardCharts() {
     gradient.addColorStop(0, 'rgba(255, 209, 0, 0.15)');
     gradient.addColorStop(1, 'rgba(255, 209, 0, 0)');
 
+    const eq = CALC().equity;
     window.activeCharts.equity = new Chart(ctxEq, {
       type: 'line',
       data: {
-        labels: state.days.map(d => fDate(d.date)),
+        labels: eq.map(p => fDate(p.x)),
         datasets: [{
-          data: state.days.map(d => d.ending_balance),
+          data: eq.map(p => p.y),
           borderColor: '#FFD100',
           borderWidth: 3,
           pointRadius: 0,
@@ -691,7 +742,7 @@ function mountReportsCharts() {}
 /* ─── Settings Page ──────────────────── */
 function pgSettings() {
   const c = CALC();
-  const name = state.profile?.full_name || 'Usuário';
+  const name = state.profile?.name || 'Usuário';
 
   const allTx = [
     ...state.deposits.map(d => ({ ...d, type: 'dep' })),
@@ -768,3 +819,4 @@ function fDate(d) {
   const [, m, day] = d.split('-');
   return `${day}/${m}`;
 }
+
