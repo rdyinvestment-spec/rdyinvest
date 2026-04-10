@@ -7,6 +7,12 @@ import Chart from 'chart.js/auto';
 
 // Navigation Manager
 window.showPage = (page) => {
+  // Always reset reports to current month on fresh navigation
+  if (page === 'reports' && window.pgState) {
+    window.pgState.repTab = 'custom';
+    window.pgState.repM = new Date().getMonth();
+    window.pgState.repY = new Date().getFullYear();
+  }
   renderPage(page);
   document.querySelectorAll('.nav-i').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
@@ -28,17 +34,16 @@ window.toast = (msg, type = 'ok') => {
 };
 
 /* ─── Daily Operations ───────────────── */
-window.onFab = () => openDailyModal();
+window.onFab = () => openDailyModal(today(), null, true);
 
-window.openDailyModal = (dateStr = today(), existing = null) => {
-  const day = existing || state.days.find(d => d.date === dateStr);
+window.openDailyModal = (dateStr = today(), existing = null, forceBlank = false) => {
+  const day = forceBlank ? null : (existing || state.days.find(d => d.date === dateStr));
   
   document.getElementById('df-date').value = dateStr;
   document.getElementById('df-pts').value = day ? day.points : '';
   document.getElementById('df-contracts').value = day ? day.contracts_used : state.config.monthly_default || 1;
   document.getElementById('df-pl-val').value = day ? day.profit_loss.toFixed(2) : '';
   document.getElementById('df-setup').value = day ? day.setup : '';
-  document.getElementById('df-notes').value = day ? day.notes : '';
   
   // Toggles
   setTog('tog-plan', day ? day.followed_plan : true);
@@ -49,15 +54,18 @@ window.openDailyModal = (dateStr = today(), existing = null) => {
   const startBal = day ? day.starting_balance : calcStartingBalance(dateStr);
   document.getElementById('df-st').value = startBal.toFixed(2);
   
-  // Emotional Stars
-  window.starVal = day ? day.emotional_rating : 5;
-  renderStars(window.starVal);
-  
-  // Delete Button
+  // Delete Button & Record ID
   document.getElementById('df-del-wrap').style.display = day ? 'block' : 'none';
   window.currentDayId = day ? day.id : null;
   
   openMo('mo-day');
+  
+  // Set initial mode
+  if (day) {
+    toggleFormEdit(false);
+  } else {
+    toggleFormEdit(true);
+  }
   
   // Update percentage
   setTimeout(() => {
@@ -76,40 +84,55 @@ window.openDailyModal = (dateStr = today(), existing = null) => {
   }, 50);
 };
 
+window.toggleFormEdit = (editable) => {
+  const modal = document.getElementById('mo-day');
+  const inputs = modal.querySelectorAll('input, select, textarea');
+  inputs.forEach(el => {
+    if (el.id !== 'df-st' && el.id !== 'df-total-op' && el.id !== 'df-date') { 
+      // Keep some fields always locked if they are calculated or fixed
+      el.disabled = !editable;
+    }
+  });
+
+  // Toggles need a special class to look/behave disabled
+  const toggles = modal.querySelectorAll('.tog');
+  toggles.forEach(tog => {
+    tog.style.pointerEvents = editable ? 'auto' : 'none';
+    tog.style.opacity = editable ? '1' : '0.6';
+  });
+
+  // Buttons visibility
+  document.getElementById('btn-save-day').style.display = editable ? 'block' : 'none';
+  document.getElementById('btn-edit-day').style.display = editable ? 'none' : 'block';
+};
+
+window.enableEdit = () => toggleFormEdit(true);
+
 function setTog(id, val) {
   const el = document.getElementById(id);
   if (el) el.classList.toggle('on', !!val);
 }
 window.toggleTog = (id) => document.getElementById(id)?.classList.toggle('on');
 
-function renderStars(val) {
-  document.querySelectorAll('.star').forEach((s, i) => {
-    s.classList.toggle('on', i < val);
-  });
-}
-window.setStar = (v) => { window.starVal = v; renderStars(v); };
+
 
 window.saveDaily = async () => {
   const pts = Number(document.getElementById('df-pts').value);
   const contracts = Number(document.getElementById('df-contracts').value);
-  const plValue = Number(document.getElementById('df-pl-val').value);
-  
+  const pl = Number(document.getElementById('df-pl-val').value) || 0;
+
   const entry = {
     date: document.getElementById('df-date').value,
-    points: pts,
-    profit_loss: plValue,
     starting_balance: Number(document.getElementById('df-st').value),
-    ending_balance: Number(document.getElementById('df-st').value) + plValue,
-    trades_count: Number(document.getElementById('df-total-op').value) || 0,
+    points: pts,
+    profit_loss: pl,
     contracts_used: contracts,
     wins: Number(document.getElementById('df-wins-op').value) || 0,
     losses: Number(document.getElementById('df-losses-op').value) || 0,
     setup: document.getElementById('df-setup').value,
-    notes: document.getElementById('df-notes').value,
     followed_plan: document.getElementById('tog-plan').classList.contains('on'),
     overtrade: document.getElementById('tog-over').classList.contains('on'),
-    revenge_trading: document.getElementById('tog-rev').classList.contains('on'),
-    emotional_rating: window.starVal
+    revenge_trading: document.getElementById('tog-rev').classList.contains('on')
   };
 
   if (window.currentDayId) {
@@ -141,12 +164,13 @@ window.saveDeposit = async () => {
     description: document.getElementById('dep-desc').value
   };
   const { error } = await store.saveDeposit(dep);
-  if (!error) { toast('Aporte realizado'); closeMo(); showPage('settings'); }
+  if (!error) { toast('Aporte realizado'); closeMo(); openMovModal(); initApp(); }
 };
 window.delDeposit = async (id) => {
   if (confirm('Excluir este aporte?')) {
     await store.deleteDeposit(id);
-    showPage('settings');
+    await initApp();
+    openMovModal();
   }
 };
 
@@ -158,13 +182,65 @@ window.saveWithdrawal = async () => {
     description: document.getElementById('wd-desc').value
   };
   const { error } = await store.saveWithdrawal(wd);
-  if (!error) { toast('Resgate realizado'); closeMo(); showPage('settings'); }
+  if (!error) { toast('Resgate realizado'); closeMo(); openMovModal(); initApp(); }
 };
 window.delWithdrawal = async (id) => {
   if (confirm('Excluir este resgate?')) {
     await store.deleteWithdrawal(id);
-    showPage('settings');
+    await initApp();
+    openMovModal();
   }
+};
+
+window.openMovModal = () => {
+  const list = document.getElementById('mov-list');
+  if (!list) return;
+
+  const all = [
+    ...state.deposits.map(d => ({ ...d, tipo: 'Aporte', color: 'var(--green)', sign: '+' })),
+    ...state.withdrawals.map(d => ({ ...d, tipo: 'Resgate', color: 'var(--red)', sign: '-' }))
+  ].sort((a, b) => b.date.localeCompare(a.date));
+
+  if (all.length === 0) {
+    list.innerHTML = `<div style="text-align:center; padding: 48px 0; color: var(--text3); font-size: 14px; font-weight: 600">Nenhuma movimentação registrada</div>`;
+  } else {
+    const totalDep = state.deposits.reduce((a, d) => a + Number(d.amount), 0);
+    const totalWd  = state.withdrawals.reduce((a, d) => a + Number(d.amount), 0);
+    const saldo    = totalDep - totalWd;
+
+    list.innerHTML = `
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 32px">
+        <div class="card card-indicator pos">
+          <div class="indicator-label">Aportes</div>
+          <div class="indicator-val mono" style="color: var(--green)">+${fR(totalDep)}</div>
+        </div>
+        <div class="card card-indicator neg">
+          <div class="indicator-label">Resgates</div>
+          <div class="indicator-val mono" style="color: var(--red)">-${fR(totalWd)}</div>
+        </div>
+        <div class="card card-indicator ${saldo >= 0 ? 'pos' : 'neg'}">
+          <div class="indicator-label">Saldo</div>
+          <div class="indicator-val mono" style="color: ${saldo >= 0 ? 'var(--green)' : 'var(--red)'}">${fR(saldo)}</div>
+        </div>
+      </div>
+      <div>
+        ${all.map(item => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border)">
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: var(--text1)">${item.tipo}</div>
+              <div style="font-size: 11px; color: var(--text3); margin-top: 2px">${item.date.split('-').reverse().join('/')}${item.description ? ' · ' + item.description : ''}</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span class="mono" style="font-size: 17px; font-weight: 900; color: ${item.color}">${item.sign}${fR(item.amount)}</span>
+              <button onclick="${item.tipo === 'Aporte' ? 'delDeposit' : 'delWithdrawal'}('${item.id}')" class="btn btn-ghost" style="color: var(--red); border-color: rgba(248,113,113,0.25); width: 32px; height: 32px; padding: 0; font-size: 16px; display: flex; align-items: center; justify-content: center">×</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  openMo('mo-mov');
 };
 
 /* ─── Settings ───────────────────────── */
@@ -208,7 +284,7 @@ window.updateSettingsPreview = () => {
           <div style="width: 22px; height: 14px; background: #FFD100; border-radius: 2px; opacity: 0.9"></div>
         </div>
         <div style="position: absolute; inset: 0; background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%); pointer-events: none"></div>
-        <div style="position: absolute; bottom: 20px; right: 20px; font-size: 8px; font-weight: 800; color: var(--xp); opacity: 0.5; letter-spacing: 2px">INVESTMENT LEGACY</div>
+        <div style="position: absolute; bottom: 20px; right: 20px; font-size: 8px; font-weight: 800; color: var(--xp); opacity: 0.5; letter-spacing: 2px">INVESTMENT PERFORMANCE</div>
       </div>
     </div>
   `;
@@ -414,9 +490,23 @@ window.calcJuros = () => {
   });
 };
 
-/* ─── Filter Logic ───────────────────── */
 window.setDashFilter = (f) => {
   window.pgState.dashFilter = f;
+  // Initialize date range when switching to custom
+  if (f === 'custom' && !window.pgState.customFrom) {
+    const now = new Date();
+    const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    window.pgState.customFrom = firstOfMonth;
+    window.pgState.customTo = now.toISOString().slice(0, 10);
+  }
+  renderPage('dashboard');
+};
+
+window.applyCustomRange = () => {
+  const from = document.getElementById('dash-from')?.value;
+  const to = document.getElementById('dash-to')?.value;
+  if (from) window.pgState.customFrom = from;
+  if (to) window.pgState.customTo = to;
   renderPage('dashboard');
 };
 

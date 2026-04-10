@@ -82,7 +82,7 @@ function pgDashboard() {
         <!-- Left Column: Content -->
         <div style="max-width: 600px">
           <div style="font-size: 14px; font-weight: 700; color: var(--xp); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 24px">RDY ELITE EXPERIENCE</div>
-          <h1 style="font-size: clamp(32px, 5vw, 56px); font-weight: 900; line-height: 1.1; letter-spacing: -2px; margin-bottom: 24px">RDY Investment <span style="color: var(--text3)">Legacy</span></h1>
+          <h1 style="font-size: clamp(32px, 5vw, 56px); font-weight: 900; line-height: 1.1; letter-spacing: -2px; margin-bottom: 24px">RDY Investment <span style="color: var(--xp)">Performance</span></h1>
           <p id="daily-verse" style="font-size: 16px; color: var(--text2); margin-bottom: 32px; max-width: 520px; font-style: italic; border-left: 3px solid var(--xp); padding-left: 16px; line-height: 1.6">${getDailyVerse()}</p>
           
         </div>
@@ -116,17 +116,27 @@ function pgDashboard() {
     <!-- Dashboard Content -->
     <div style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
       
-      <div style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-end">
+      <div class="pg-hd" style="flex-wrap: wrap; gap: 16px">
         <div>
-          <div style="font-size: 12px; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px">${dateStr}</div>
-          <h2 style="font-size: 24px; font-weight: 800; letter-spacing: -1px">Resumo do <span style="color: var(--xp)">Dashboard</span></h2>
+          <div style="font-size: 11px; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px">${dateStr}</div>
+          <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -1px">Resumo do <span style="color: var(--xp)">Dashboard</span></h2>
         </div>
-        <div class="tabs" style="margin-bottom:0">
-          ${['today', 'week', 'month', 'total'].map(f => `
-            <div class="tab ${window.pgState.dashFilter === f ? 'on' : ''}" onclick="setDashFilter('${f}')">
-              ${f === 'today' ? 'Hoje' : f === 'week' ? 'Semana' : f === 'month' ? 'Mês' : 'Geral'}
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 12px; min-width: 100%">
+          <div class="tabs" style="margin-bottom:0; width: 100%; justify-content: flex-end">
+            ${['today', 'week', 'month', 'total', 'custom'].map(f => `
+              <div class="tab ${window.pgState.dashFilter === f ? 'on' : ''}" onclick="setDashFilter('${f}')">
+                ${f === 'today' ? 'Hoje' : f === 'week' ? 'Semana' : f === 'month' ? 'Mês' : f === 'total' ? 'Geral' : 'Gerenciar'}
+              </div>
+            `).join('')}
+          </div>
+          ${window.pgState.dashFilter === 'custom' ? `
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end">
+              <input type="date" id="dash-from" class="fi" style="padding: 8px 12px; font-size: 12px; width: 130px" value="${window.pgState.customFrom || ''}" onchange="window.pgState.customFrom=this.value">
+              <span style="font-size: 11px; color: var(--text3); font-weight: 700">até</span>
+              <input type="date" id="dash-to" class="fi" style="padding: 8px 12px; font-size: 12px; width: 130px" value="${window.pgState.customTo || ''}" onchange="window.pgState.customTo=this.value">
+              <button class="btn btn-xp" onclick="applyCustomRange()" style="padding: 8px 16px; font-size: 12px; height: auto">Filtrar</button>
             </div>
-          `).join('')}
+          ` : ''}
         </div>
       </div>
 
@@ -139,12 +149,34 @@ function pgDashboard() {
             <span style="font-size: 10px; font-weight: 800; color: var(--text3)">CONTA REAL BRL</span>
           </div>
           <div style="margin: 32px 0">
-            <div class="mono" style="font-size: 64px; font-weight: 900; letter-spacing: -4px; color: ${isPos ? 'var(--green)' : 'var(--red)'}">${fR(c.balance)}</div>
+            <div class="mono" style="font-size: 64px; font-weight: 900; letter-spacing: -4px; color: ${c.balance >= 0 ? 'var(--green)' : 'var(--red)'}">${fR(c.balance)}</div>
             <div style="display: flex; gap: 12px; margin-top: 16px; align-items: center">
-              <span class="badge ${isPos ? 'badge-pos' : 'badge-neg'}" style="border-radius: 4px; padding: 4px 10px; font-size: 11px">Win Rate: ${fPct(c.wr)}</span>
+              <span class="badge ${c.wr >= 50 ? 'badge-pos' : 'badge-neg'}" style="border-radius: 4px; padding: 4px 10px; font-size: 11px">Win Rate: ${fPct(c.wr)}</span>
               <span style="font-size: 14px; font-weight: 700; color: var(--text3)">${fR(c.totalPL)} <span class="${cv(c.totalPL)}" style="font-size: 12px; margin-left: 4px">(${c.totalPL > 0 ? '+' : ''}${((c.totalPL / (c.startCap || 1)) * 100).toFixed(2)}%)</span></span>
             </div>
           </div>
+        </div>
+
+        <!-- Aportes/Saques Indicator Cards -->
+        <div class="card card-indicator" style="border-left: none">
+          <div class="indicator-label">Total Aportado</div>
+          <div class="indicator-val mono" style="color: var(--xp); font-size: 24px">${fR(c.depSum)}</div>
+          <div style="font-size: 11px; color: var(--text3); margin-top: 4px">Fundos em conta</div>
+        </div>
+
+        <div class="card card-indicator" style="border-left: none; --xp: var(--text3)">
+          <div class="indicator-label">Total Sacado</div>
+          <div class="indicator-val mono" style="color: var(--text2); font-size: 24px">${fR(c.wdSum)}</div>
+          <div style="font-size: 11px; color: var(--text3); margin-top: 4px">Retiradas efetuadas</div>
+        </div>
+
+        <!-- Curva de Capital -->
+        <div class="card card-lg" style="grid-column: span 2">
+          <div class="shdr">
+            <span class="shdr-t">Curva de Capital</span>
+            <div class="badge ${calcGrowth(state.days) >= 0 ? 'badge-pos' : 'badge-neg'}" style="border-radius:4px">${fPct(calcGrowth(state.days))}</div>
+          </div>
+          <div style="height: 220px; width: 100%; margin-top: 16px"><canvas id="ch-equity"></canvas></div>
         </div>
 
         <!-- Taxas & Custos -->
@@ -164,35 +196,61 @@ function pgDashboard() {
               <span class="mono" style="color: var(--red); font-size: 16px">-${fR(c.totalBro + c.totalIR)}</span>
             </div>
           </div>
-          
-          ${state.days.find(d => d.date === today()) ? `
-            <button class="btn btn-ghost" style="width:100%; margin-top:16px; font-size:11px; height:36px" onclick="openDailyModal('${today()}')">
-              <span style="margin-right:8px">📝</span> Editar Operações de Hoje
-            </button>
-          ` : ''}
         </div>
 
-        <!-- Curva de Capital -->
-        <div class="card card-lg">
-          <div class="shdr">
-            <span class="shdr-t">Curva de Capital</span>
-            <div class="badge badge-pos" style="border-radius:4px">+${fPct(calcGrowth(state.days))}</div>
-          </div>
-          <div style="height: 220px; width: 100%; margin-top: 16px"><canvas id="ch-equity"></canvas></div>
-        </div>
+        <!-- ─── KPI Grid de Performance ─── -->
+        ${(() => {
+          const f = window.pgState.dashFilter;
+          const nowD = new Date();
+          const todayStr = nowD.toISOString().slice(0, 10);
+          const weekStart = new Date(nowD); weekStart.setDate(nowD.getDate() - nowD.getDay());
+          const weekStr = weekStart.toISOString().slice(0, 10);
+          const monthStr = `${nowD.getFullYear()}-${String(nowD.getMonth()+1).padStart(2,'0')}`;
 
-        <!-- Aportes/Saques Slim Cards -->
-        <div class="card" style="padding: 24px; border-left: 4px solid var(--xp)">
-          <div style="font-size: 11px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 12px">Total Aportado</div>
-          <div class="mono" style="font-size: 28px; font-weight: 800; color: var(--xp)">${fR(c.depSum)}</div>
-          <div style="font-size: 12px; color: var(--text3); margin-top: 8px">Fundos em conta</div>
-        </div>
+          let days = state.days;
+          if (f === 'today') days = state.days.filter(d => d.date === todayStr);
+          else if (f === 'week') days = state.days.filter(d => d.date >= weekStr && d.date <= todayStr);
+          else if (f === 'month') days = state.days.filter(d => d.date.startsWith(monthStr));
+          else if (f === 'custom') {
+            const from = window.pgState.customFrom || '';
+            const to = window.pgState.customTo || todayStr;
+            days = state.days.filter(d => d.date >= from && d.date <= to);
+          }
 
-        <div class="card" style="padding: 24px; border-left: 4px solid var(--text3)">
-          <div style="font-size: 11px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 12px">Total Sacado</div>
-          <div class="mono" style="font-size: 28px; font-weight: 800; color: var(--text2)">${fR(c.wdSum)}</div>
-          <div style="font-size: 12px; color: var(--text3); margin-top: 8px">Retiradas efetuadas</div>
-        </div>
+          const totalContracts = days.reduce((a, d) => a + Number(d.contracts_used || 0), 0);
+          const totalTrades = days.reduce((a, d) => a + (Number(d.wins || 0) + Number(d.losses || 0)), 0);
+          const totalWins = days.reduce((a, d) => a + Number(d.wins || 0), 0);
+          const totalLosses = days.reduce((a, d) => a + Number(d.losses || 0), 0);
+          const winOpPct = totalTrades ? (totalWins / totalTrades) * 100 : 0;
+          const lossOpPct = totalTrades ? (totalLosses / totalTrades) * 100 : 0;
+
+          const totalGrossWin = days.filter(d => Number(d.profit_loss) > 0).reduce((a, d) => a + Number(d.profit_loss), 0);
+          const totalGrossLoss = days.filter(d => Number(d.profit_loss) < 0).reduce((a, d) => a + Math.abs(Number(d.profit_loss)), 0);
+          const totalGross = totalGrossWin + totalGrossLoss;
+          const winValPct = totalGross ? (totalGrossWin / totalGross) * 100 : 0;
+          const lossValPct = totalGross ? (totalGrossLoss / totalGross) * 100 : 0;
+          const winDays = days.filter(d => Number(d.profit_loss) > 0).length;
+          const lossDays = days.filter(d => Number(d.profit_loss) < 0).length;
+
+          const kpi = (label, val, sub, color = 'var(--text1)') => `
+            <div style="padding: 16px 18px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column">
+              <div style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; min-height: 24px; display: flex; align-items: flex-start">${label}</div>
+              <div class="mono" style="font-size: 22px; font-weight: 900; color: ${color}; letter-spacing: -1px; margin-top: 4px">${val}</div>
+              ${sub ? `<div style="font-size: 10px; color: var(--text3); margin-top: 5px; font-weight: 600">${sub}</div>` : ''}
+            </div>`;
+
+          return `
+          <div class="kpi-grid" style="grid-column: 1 / -1">
+            ${kpi('Contratos', totalContracts, `${days.length} dias`, 'var(--xp)')}
+            ${kpi('Trades', totalTrades, `${totalWins}G / ${totalLosses}P`, 'var(--text1)')}
+            ${kpi('Dias Ganhos', winDays, `${winDays + lossDays} operados`, 'var(--green)')}
+            ${kpi('Dias Perdas', lossDays, `${lossDays > 0 ? ((lossDays / (winDays + lossDays || 1)) * 100).toFixed(1) + '% dos dias' : 'Nenhum'}`, 'var(--red)')}
+            ${kpi('Ganhos R$', fR(totalGrossWin), `${winValPct.toFixed(1)}% do volume`, 'var(--green)')}
+            ${kpi('Perdas R$', '-' + fR(totalGrossLoss), `${lossValPct.toFixed(1)}% do volume`, 'var(--red)')}
+            ${kpi('Win% Ops', winOpPct.toFixed(1) + '%', `${totalWins}/${totalTrades} trades`, winOpPct >= 50 ? 'var(--green)' : 'var(--red)')}
+            ${kpi('Win% Valor', winValPct.toFixed(1) + '%', `Sobre volume bruto`, winValPct >= 50 ? 'var(--green)' : 'var(--red)')}
+          </div>`;
+        })()}
 
       </div>
     </div>
@@ -430,23 +488,29 @@ function mountCalendarCharts() {
 
 /* ─── Reports Page ───────────────────── */
 function pgReports() {
-  if (!window.pgState.repTab) window.pgState.repTab = 'month';
+  if (!window.pgState.repTab) window.pgState.repTab = 'custom';
   const tab = window.pgState.repTab;
   const c = CALC();
 
   let html = `
     <div style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
       
-      <div style="margin-bottom: 32px">
-        <h2 style="font-size: 28px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 20px">Relatórios & <span style="color: var(--xp)">Insights</span></h2>
+      <div style="margin-bottom: 40px">
+        <h1 style="font-size: clamp(28px, 4vw, 36px); font-weight: 900; letter-spacing: -2px; margin-bottom: 24px">Relatórios & <span style="color: var(--xp)">Insights</span></h1>
         
         <div class="tabs">
-          <button class="tab ${tab === 'month' ? 'on' : ''}" onclick="setRepTab('month')">Mensal</button>
-          <button class="tab ${tab === 'year' ? 'on' : ''}" onclick="setRepTab('year')">Anual</button>
-          <button class="tab ${tab === 'custom' ? 'on' : ''}" onclick="setRepTab('custom')">Personalizado</button>
-          <button class="tab ${tab === 'goals' ? 'on' : ''}" onclick="setRepTab('goals')">Objetivos</button>
-          <button class="tab ${tab === 'proj' ? 'on' : ''}" onclick="setRepTab('proj')">Projeção</button>
-          <button class="tab ${tab === 'juros' ? 'on' : ''}" onclick="setRepTab('juros')">Juros</button>
+          ${[
+            { id: 'month', label: 'Mensal' },
+            { id: 'year', label: 'Anual' },
+            { id: 'custom', label: 'Personalizado' },
+            { id: 'goals', label: 'Objetivos' },
+            { id: 'proj', label: 'Projeção' },
+            { id: 'juros', label: 'Juros' }
+          ].map(n => `
+            <div class="tab ${tab === n.id ? 'on' : ''}" onclick="setRepTab('${n.id}')">
+              ${n.label}
+            </div>
+          `).join('')}
         </div>
       </div>
 
@@ -457,18 +521,18 @@ function pgReports() {
     const mc = monthCALC(window.pgState.repY, window.pgState.repM);
     
     html += `
-      <div class="mrow" style="margin: 16px 0 32px">
+      <div class="mrow" style="margin: 16px 0 32px; align-items: center; justify-content: center">
         <button class="cal-nb" onclick="changeRepMonth(-1)">‹</button>
-        <div style="flex:1; text-align:center; font-weight:900; font-size:18px; letter-spacing:-1px">
+        <div style="width: 240px; text-align:center; font-weight:900; font-size:22px; letter-spacing:-1px">
           ${MS[window.pgState.repM]} <span style="color:var(--text3)">${window.pgState.repY}</span>
         </div>
         <button class="cal-nb" onclick="changeRepMonth(1)">›</button>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px">
+      <div class="rpt-grid-3">
         <div class="card">
           <div class="shdr-t">Resumo Financeiro</div>
-          <div style="margin: 20px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 24px">
+          <div style="margin: 24px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 24px">
              <div><div class="st-lb">P&L Bruto</div><div class="mono" style="font-size:20px">${fR(mc.pl + mc.totalBro + mc.totalIR)}</div></div>
              <div><div class="st-lb">P&L Líquido</div><div class="mono ${cv(mc.pl)}" style="font-size:20px">${fR(mc.pl)}</div></div>
              <div><div class="st-lb">Corretagem</div><div class="mono neg" style="font-size:20px">-${fR(mc.totalBro)}</div></div>
@@ -477,7 +541,7 @@ function pgReports() {
         </div>
         <div class="card">
           <div class="shdr-t">Métricas de Performance</div>
-          <div style="margin: 20px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 24px">
+          <div style="margin: 24px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 24px">
              <div><div class="st-lb">Win Rate</div><div class="mono" style="font-size:20px; color: var(--xp)">${fPct(mc.wr)}</div></div>
              <div><div class="st-lb">Profit Factor</div><div class="mono" style="font-size:20px; color: var(--green)">${mc.pf.toFixed(2)}</div></div>
              <div><div class="st-lb">Total Trades</div><div class="mono" style="font-size:20px">${mc.trades}</div></div>
@@ -492,59 +556,60 @@ function pgReports() {
     const rc = rangeCALC(start, end);
 
     html += `
-      <div class="card" style="margin-bottom: 24px">
-        <div class="shdr-t">Filtro de Intervalo</div>
-        <div style="display:flex; gap:16px; margin-top:16px; flex-wrap:wrap">
-          <div class="fl" style="flex:1; min-width:150px">
-            <label class="fl-lb">Início</label>
-            <input type="date" class="fi" value="${start}" onchange="setRepRange('start', this.value)">
+      <!-- Interval Filter -->
+      <div class="card" style="margin-bottom: 32px; padding: 32px">
+        <div class="shdr-t" style="margin-bottom: 24px; color: var(--text3)">FILTRO DE INTERVALO</div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px">
+          <div class="fl">
+            <label class="fl-lb" style="margin-bottom: 12px; font-weight: 800; font-size: 11px">INÍCIO</label>
+            <input type="date" class="fi" value="${start}" onchange="setRepRange('start', this.value)" style="background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); padding: 16px 20px; border-radius: 16px; font-weight: 700">
           </div>
-          <div class="fl" style="flex:1; min-width:150px">
-            <label class="fl-lb">Fim</label>
-            <input type="date" class="fi" value="${end}" onchange="setRepRange('end', this.value)">
+          <div class="fl">
+            <label class="fl-lb" style="margin-bottom: 12px; font-weight: 800; font-size: 11px">FIM</label>
+            <input type="date" class="fi" value="${end}" onchange="setRepRange('end', this.value)" style="background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); padding: 16px 20px; border-radius: 16px; font-weight: 700">
           </div>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px">
+      <div class="rpt-grid-3">
         
         <!-- Finance Card -->
-        <div class="card">
-          <div class="shdr-t">Resumo Financeiro</div>
-          <div style="margin:20px 0; display:grid; grid-template-columns: 1fr 1fr; gap:20px">
-            <div><div class="st-lb">Resultado Líquido</div><div class="st-val-lg ${cv(rc.pl)}">${fR(rc.pl)}</div></div>
-            <div><div class="st-lb">Profit Factor</div><div class="st-val-lg" style="color:var(--green)">${rc.pf.toFixed(2)}</div></div>
-            <div><div class="st-lb">Aportes</div><div class="st-val" style="color:var(--blue)">${fR(rc.dep)}</div></div>
-            <div><div class="st-lb">Retiradas</div><div class="st-val" style="color:var(--red)">${fR(rc.wd)}</div></div>
+        <div class="card" style="padding: 32px">
+          <div class="shdr-t" style="margin-bottom: 32px">RESUMO FINANCEIRO</div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:32px">
+            <div><div class="st-lb">Resultado Líquido</div><div class="mono ${cv(rc.pl)}" style="font-size: 32px; letter-spacing: -1.5px">${fR(rc.pl)}</div></div>
+            <div><div class="st-lb">Profit Factor</div><div class="mono" style="color:var(--text1); font-size: 32px; letter-spacing: -1.5px">${rc.pf.toFixed(2)}</div></div>
+            <div><div class="st-lb">Aportes</div><div class="mono" style="color:var(--blue); font-size: 20px">${fR(rc.dep)}</div></div>
+            <div><div class="st-lb">Retiradas</div><div class="mono" style="color:var(--red); font-size: 20px">${fR(rc.wd)}</div></div>
           </div>
         </div>
 
         <!-- Performance Card -->
-        <div class="card">
-          <div class="shdr-t">Consistência e Volume</div>
-          <div style="margin:20px 0; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px">
-             <div><div class="st-lb">Dias Positivos</div><div class="st-val pos">${rc.posD}</div></div>
-             <div><div class="st-lb">Dias Negativos</div><div class="st-val neg">${rc.negD}</div></div>
-             <div><div class="st-lb">Não Operados</div><div class="st-val" style="opacity:0.6">${rc.notTraded}</div></div>
+        <div class="card" style="padding: 32px; border: 1px solid var(--xp-glow)">
+          <div class="shdr-t" style="margin-bottom: 32px">CONSISTÊNCIA E VOLUME</div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:24px">
+             <div><div class="st-lb">Dias Positivos</div><div class="mono pos" style="font-size: 20px">${rc.posD}</div></div>
+             <div><div class="st-lb">Dias Negativos</div><div class="mono neg" style="font-size: 20px">${rc.negD}</div></div>
+             <div><div class="st-lb">Não Operados</div><div class="mono" style="opacity:0.6; font-size: 20px">${rc.notTraded}</div></div>
              
-             <div><div class="st-lb">Total Trades</div><div class="st-val">${rc.totalOps}</div></div>
-             <div><div class="st-lb">Vencidos</div><div class="st-val pos">${rc.tWins}</div></div>
-             <div><div class="st-lb">Perdidos</div><div class="st-val neg">${rc.tLosses}</div></div>
+             <div><div class="st-lb">Total Trades</div><div class="mono" style="font-size: 20px">${rc.totalOps}</div></div>
+             <div><div class="st-lb">Vencidos</div><div class="mono pos" style="font-size: 20px">${rc.tWins}</div></div>
+             <div><div class="st-lb">Perdidos</div><div class="mono neg" style="font-size: 20px">${rc.tLosses}</div></div>
           </div>
-          <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center">
-            <span class="st-lb">Taxa de Acerto (Trades)</span>
-            <span style="font-weight:900; color:var(--xp); font-size:18px">${fPct(rc.tWr)}</span>
+          <div style="margin-top:32px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center">
+            <span class="st-lb" style="margin-bottom: 0">Taxa de Acerto (Trades)</span>
+            <span class="mono" style="color:var(--xp); font-size:24px; letter-spacing: -1px">+${fPct(rc.tWr)}</span>
           </div>
         </div>
 
-        <!-- Metrics Card -->
-        <div class="card">
-          <div class="shdr-t">Dados Operacionais</div>
-          <div style="margin:20px 0; display:grid; grid-template-columns: 1fr 1fr; gap:20px">
-             <div><div class="st-lb">Total Pontos</div><div class="st-val">${rc.totalPts.toLocaleString()}</div></div>
-             <div><div class="st-lb">Total Contratos</div><div class="st-val">${rc.totalContracts}</div></div>
-             <div><div class="st-lb">Média Pontos/Dia</div><div class="st-val" style="color:var(--xp)">${(rc.totalPts / (rc.posD + rc.negD || 1)).toFixed(0)}</div></div>
-             <div><div class="st-lb">Média Lucro/Dia</div><div class="st-val ${cv(rc.avgDay)}">${fR(rc.avgDay)}</div></div>
+        <!-- Operational Card -->
+        <div class="card" style="padding: 32px">
+          <div class="shdr-t" style="margin-bottom: 32px">DADOS OPERACIONAIS</div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:32px">
+             <div><div class="st-lb">Total Pontos</div><div class="mono" style="font-size: 20px">${rc.totalPts.toLocaleString()}</div></div>
+             <div><div class="st-lb">Total Contratos</div><div class="mono" style="font-size: 20px">${rc.totalContracts}</div></div>
+             <div><div class="st-lb">Média Pontos/Dia</div><div class="mono" style="color:var(--xp); font-size: 20px">${(rc.totalPts / (rc.posD + rc.negD || 1)).toFixed(0)}</div></div>
+             <div><div class="st-lb">Média Lucro/Dia</div><div class="mono ${cv(rc.avgDay)}" style="font-size: 20px">${fR(rc.avgDay)}</div></div>
           </div>
         </div>
 
@@ -552,7 +617,7 @@ function pgReports() {
     `;
   } else if (tab === 'goals') {
     html += `
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px">
         ${renderGoal('Meta Mensal', c.mPL, c.gMonthly, 'R$')}
         ${renderGoal('Win Rate 55%', c.wr, 55, '%')}
         ${renderGoal('Profit Factor 1.5', c.pf, 1.5, '')}
@@ -561,9 +626,9 @@ function pgReports() {
     `;
   } else if (tab === 'proj') {
     html += `
-      <div class="card">
-        <div class="shdr-t">Calculadora de Escada (Contratos)</div>
-        <div class="mf" style="margin-top: 20px">
+      <div class="card" style="padding: 32px">
+        <div class="shdr-t" style="margin-bottom: 24px">Calculadora de Escada (Contratos)</div>
+        <div class="mf">
           <div class="fr">
             <div class="fl"><label class="fl-lb">Banca Inicial</label><input type="number" id="p-cap" class="fi" value="${c.balance.toFixed(0)}"></div>
             <div class="fl"><label class="fl-lb">R$ por Contrato</label><input type="number" id="p-step" class="fi" value="500"></div>
@@ -572,16 +637,16 @@ function pgReports() {
             <div class="fl"><label class="fl-lb">Meta Diária (Pts)</label><input type="number" id="p-pts" class="fi" value="100"></div>
             <div class="fl"><label class="fl-lb">Meses</label><input type="number" id="p-months" class="fi" value="6"></div>
           </div>
-          <button class="btn btn-xp" onclick="calcProj()">Calcular Projeção</button>
+          <button class="btn btn-xp" onclick="calcProj()" style="margin-top: 12px">Calcular Projeção</button>
         </div>
-        <div id="proj-result" style="margin-top: 32px"></div>
+        <div id="proj-result" style="margin-top: 40px"></div>
       </div>
     `;
   } else if (tab === 'juros') {
     html += `
-      <div class="card">
-        <div class="shdr-t">Juros Compostos</div>
-        <div class="mf" style="margin-top: 20px">
+      <div class="card" style="padding: 32px">
+        <div class="shdr-t" style="margin-bottom: 24px">Juros Compostos</div>
+        <div class="mf">
           <div class="fr">
             <div class="fl"><label class="fl-lb">Valor Inicial</label><input type="number" id="j-cap" class="fi" value="${c.balance.toFixed(0)}"></div>
             <div class="fl"><label class="fl-lb">Aporte Mensal</label><input type="number" id="j-dep" class="fi" value="0"></div>
@@ -590,18 +655,19 @@ function pgReports() {
             <div class="fl"><label class="fl-lb">Taxa Mensal (%)</label><input type="number" id="j-rate" class="fi" value="5"></div>
             <div class="fl"><label class="fl-lb">Período (Meses)</label><input type="number" id="j-months" class="fi" value="12"></div>
           </div>
-          <button class="btn btn-xp" onclick="calcJuros()">Ver Futuro</button>
+          <button class="btn btn-xp" onclick="calcJuros()" style="margin-top: 12px">Ver Futuro</button>
         </div>
-        <div id="juros-result" style="margin-top: 32px"></div>
+        <div id="juros-result" style="margin-top: 40px"></div>
       </div>
     `;
   } else {
-     html += `<div class="card" style="padding:40px; text-align:center; color:var(--text3)">Aba em desenvolvimento</div>`;
+     html += `<div class="card" style="padding:60px; text-align:center; color:var(--text3)">Aba em desenvolvimento</div>`;
   }
 
   html += `</div></div>`;
   return html;
 }
+
 
 function renderGoal(name, val, target, unit) {
   const pct = Math.min(100, Math.max(0, (val / target) * 100));

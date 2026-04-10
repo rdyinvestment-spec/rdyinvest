@@ -22,7 +22,7 @@
   <div id="screen-login" style="display:none; position:fixed; inset:0; background:radial-gradient(circle at center, #111 0%, #000 100%); z-index:9990; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px">
     <div style="text-align:center; margin-bottom:48px; transition: transform 0.8s var(--ease)">
       <div style="font-family:'Inter',sans-serif; font-size:64px; font-weight:900; color:var(--xp); letter-spacing:-3px; line-height:0.9">RDY</div>
-      <div style="font-size:12px; color:var(--text3); text-transform:uppercase; margin-top:12px; letter-spacing:4px; font-weight:800">INVESTMENT LEGACY</div>
+      <div style="font-size:12px; color:var(--text3); text-transform:uppercase; margin-top:12px; letter-spacing:4px; font-weight:800">INVESTMENT PERFORMANCE</div>
     </div>
     
     <div class="card" style="width:100%; max-width:420px; padding:48px; background: rgba(10,10,10,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 40px 80px rgba(0,0,0,0.9)">
@@ -95,7 +95,7 @@
         <div style="font-family:'Inter',sans-serif; font-size:24px; font-weight:900; color:#FFD100; letter-spacing:-1.5px; cursor:pointer">RDY</div>
       </div>
       <div style="display:flex; gap:16px; align-items:center">
-        <div id="header-user-avatar" style="width:40px; height:40px; border-radius:10px; background:var(--xp); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; color:#000; box-shadow:0 0 15px var(--xp-glow)">
+        <div id="header-user-avatar" onclick="logout()" style="width:40px; height:40px; border-radius:10px; background:var(--xp); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; color:#000; box-shadow:0 0 15px var(--xp-glow); cursor:pointer" title="Sair da Plataforma">
           U
         </div>
       </div>
@@ -119,6 +119,11 @@
         <span>Insights</span>
       </a>
 
+      <a href="javascript:void(0)" class="nav-i" id="nav-mov" onclick="openMovModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+        <span>Aportes</span>
+      </a>
+
       <div class="fab" onclick="window.onFab && window.onFab()">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
       </div>
@@ -136,20 +141,35 @@
             <div class="fl"><label class="fl-lb">Saldo Inicial</label><input type="number" id="df-st" class="fi" readonly style="opacity:0.6"></div>
           </div>
           <div class="fr-3">
-            <div class="fl"><label class="fl-lb">Contratos</label><input type="number" id="df-contracts" class="fi"></div>
-            <div class="fl"><label class="fl-lb">Pontos</label><input type="number" id="df-pts" class="fi" placeholder="0"></div>
             <div class="fl">
-              <label class="fl-lb" style="display: flex; justify-content: space-between; align-items: center">
-                <span>Financeiro (R$)</span>
+              <label class="fl-lb" style="min-height: 14px; display: flex; align-items: flex-end">Contratos</label>
+              <input type="number" id="df-contracts" class="fi">
+            </div>
+            <div class="fl">
+              <label class="fl-lb" style="min-height: 14px; display: flex; align-items: flex-end">Pontos</label>
+              <input type="number" id="df-pts" class="fi" placeholder="0">
+            </div>
+            <div class="fl">
+              <label class="fl-lb" style="display: flex; justify-content: space-between; align-items: flex-end; min-height: 14px">
+                <span>Lucro (R$)</span>
                 <span id="df-pl-pct" style="font-size: 10px; opacity: 0.8"></span>
               </label>
               <input type="number" step="0.01" id="df-pl-val" class="fi" placeholder="0,00">
             </div>
           </div>
           <div class="fr-3">
-            <div class="fl"><label class="fl-lb" style="color:var(--green)">Trades Ganhos</label><input type="number" id="df-wins-op" class="fi" placeholder="0"></div>
-            <div class="fl"><label class="fl-lb" style="color:var(--red)">Trades Perdidos</label><input type="number" id="df-losses-op" class="fi" placeholder="0"></div>
-            <div class="fl"><label class="fl-lb">Total Trades</label><input type="number" id="df-total-op" class="fi" readonly style="opacity:0.6"></div>
+            <div class="fl">
+              <label class="fl-lb" style="color:var(--green); min-height: 14px; display: flex; align-items: flex-end">Trades Ganhos</label>
+              <input type="number" id="df-wins-op" class="fi" placeholder="0">
+            </div>
+            <div class="fl">
+              <label class="fl-lb" style="color:var(--red); min-height: 14px; display: flex; align-items: flex-end">Trades Perdidos</label>
+              <input type="number" id="df-losses-op" class="fi" placeholder="0">
+            </div>
+            <div class="fl">
+              <label class="fl-lb" style="min-height: 14px; display: flex; align-items: flex-end">Total Trades</label>
+              <input type="number" id="df-total-op" class="fi" readonly style="opacity:0.6">
+            </div>
           </div>
           <div class="fl"><label class="fl-lb">Estratégia/Setup</label><input type="text" id="df-setup" class="fi" placeholder="Ex: Pullback"></div>
           
@@ -168,20 +188,12 @@
             </div>
           </div>
 
-          <div style="margin:20px 0">
-            <label class="fl-lb">Estado Emocional</label>
-            <div class="stars">
-              <span class="star" onclick="setStar(1)">★</span>
-              <span class="star" onclick="setStar(2)">★</span>
-              <span class="star" onclick="setStar(3)">★</span>
-              <span class="star" onclick="setStar(4)">★</span>
-              <span class="star" onclick="setStar(5)">★</span>
-            </div>
-          </div>
 
-          <div class="fl"><label class="fl-lb">Notas Mentais</label><textarea id="df-notes" class="fi" style="height:80px;resize:none" placeholder="Como você se sentiu hoje?"></textarea></div>
           
-          <button class="btn btn-xp" onclick="saveDaily()" style="margin-top:20px">Salvar Dia</button>
+          <div style="display: flex; gap: 12px; margin-top: 20px">
+            <button id="btn-save-day" class="btn btn-xp" onclick="saveDaily()" style="flex: 1">Salvar Dia</button>
+            <button id="btn-edit-day" class="btn btn-xp" onclick="enableEdit()" style="flex: 1; display: none">Editar</button>
+          </div>
           <div id="df-del-wrap" style="margin-top:12px;text-align:center">
             <button class="btn btn-ghost" onclick="deleteDay()" style="color:var(--red);border-color:rgba(255,64,64,0.2)">Excluir Registro</button>
           </div>
@@ -213,6 +225,20 @@
         <input type="text" id="wd-desc" class="fi" placeholder="Descrição (opcional)">
         <button class="btn btn-xp" onclick="saveWithdrawal()" style="margin-top:12px">Confirmar Saque</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: Movimentações -->
+  <div id="mo-mov" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
+    <div class="mo-content" style="padding: 32px 24px; max-width: 520px; max-height: 82vh; overflow-y: auto">
+      <div class="shdr" style="margin-bottom: 20px">
+        <span class="shdr-t">Movimentações</span>
+        <div style="display: flex; gap: 8px">
+          <button class="btn btn-xp" style="font-size: 12px; padding: 7px 18px; height: auto" onclick="closeMo(); setTimeout(()=>{document.getElementById('dep-date').value=new Date().toISOString().slice(0,10); openMo('mo-dep')},100)">+ Aporte</button>
+          <button class="btn btn-ghost" style="font-size: 12px; padding: 7px 18px; height: auto; color: var(--red); border-color: rgba(248,113,113,0.3)" onclick="closeMo(); setTimeout(()=>{document.getElementById('wd-date').value=new Date().toISOString().slice(0,10); openMo('mo-wd')},100)">− Resgatar</button>
+        </div>
+      </div>
+      <div id="mov-list"></div>
     </div>
   </div>
 
