@@ -63,6 +63,7 @@ window.openDailyModal = (dateStr = today(), existing = null, forceBlank = false)
   document.getElementById('df-pts').value = day ? day.points : '';
   document.getElementById('df-contracts').value = day ? day.contracts_used : state.config.monthly_default || 1;
   document.getElementById('df-pl-val').value = day ? day.profit_loss.toFixed(2) : '';
+  updatePlSignBtn();
   document.getElementById('df-setup').value = day ? day.setup : '';
   
   // Toggles
@@ -729,10 +730,32 @@ function initDailyCalc() {
 
   pts.oninput = () => sync('pts');
   contracts.oninput = () => sync('contracts');
-  val.oninput = () => sync('val');
+  val.oninput = () => { sync('val'); updatePlSignBtn(); };
   document.getElementById('df-wins-op').oninput = syncOps;
   document.getElementById('df-losses-op').oninput = syncOps;
 }
+
+/* ─── +/− Toggle para P&L ────────────── */
+function updatePlSignBtn() {
+  const input = document.getElementById('df-pl-val');
+  const btn = document.getElementById('df-pl-sign');
+  if (!input || !btn) return;
+  const v = parseFloat(input.value) || 0;
+  const isNeg = v < 0;
+  btn.textContent = isNeg ? '−' : '+';
+  btn.style.color = isNeg ? 'var(--red)' : 'var(--green)';
+  btn.style.borderColor = isNeg ? 'rgba(255,82,82,0.4)' : 'rgba(0,230,118,0.4)';
+  btn.style.background = isNeg ? 'rgba(255,82,82,0.08)' : 'rgba(0,230,118,0.06)';
+}
+
+window.togglePlSign = () => {
+  const input = document.getElementById('df-pl-val');
+  if (!input) return;
+  const v = parseFloat(input.value) || 0;
+  input.value = v === 0 ? '-' : (-v).toFixed(2);
+  updatePlSignBtn();
+  input.dispatchEvent(new Event('input'));
+};
 
 
 /* ─── Impersonation Support ──────────── */

@@ -166,7 +166,10 @@
                 <span>Lucro (R$)</span>
                 <span id="df-pl-pct" style="font-size: 10px; opacity: 0.8"></span>
               </label>
-              <input type="number" step="0.01" id="df-pl-val" class="fi" placeholder="0,00">
+              <div style="display:flex; gap:6px; align-items:center">
+                <input type="text" inputmode="decimal" id="df-pl-val" class="fi" placeholder="0,00" style="flex:1">
+                <button type="button" id="df-pl-sign" onclick="togglePlSign()" style="flex-shrink:0; width:40px; height:48px; border-radius:10px; border:1px solid var(--border2); background:rgba(255,255,255,0.04); color:var(--text2); font-size:18px; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s">+</button>
+              </div>
             </div>
           </div>
           <div class="fr-3">
