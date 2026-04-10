@@ -144,7 +144,7 @@
 
   <!-- Modal: Daily Form Elite -->
   <div id="mo-day" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
-    <div class="mo-content" style="padding: 32px 24px; max-width: 500px">
+    <div class="mo-content" onclick="event.stopPropagation()" style="padding: 32px 24px; max-width: 500px">
       <div id="day-form">
         <h3 id="df-title" class="shdr-t">Registro de Operação</h3>
         <div class="mf" style="margin-top:24px">
@@ -216,7 +216,7 @@
 
   <!-- Modal: Deposit Elite -->
   <div id="mo-dep" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
-    <div class="mo-content" style="padding: 32px 24px; max-width: 450px">
+    <div class="mo-content" onclick="event.stopPropagation()" style="padding: 32px 24px; max-width: 450px">
       <h3 class="shdr-t">Novo Aporte</h3>
       <div class="mf" style="margin-top:24px">
         <input type="date" id="dep-date" class="fi">
@@ -229,7 +229,7 @@
 
   <!-- Modal: Withdrawal Elite -->
   <div id="mo-wd" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
-    <div class="mo-content" style="padding: 32px 24px; max-width: 450px">
+    <div class="mo-content" onclick="event.stopPropagation()" style="padding: 32px 24px; max-width: 450px">
       <h3 class="shdr-t">Nova Retirada</h3>
       <div class="mf" style="margin-top:24px">
         <input type="date" id="wd-date" class="fi">
@@ -242,7 +242,7 @@
 
   <!-- Modal: Movimentações -->
   <div id="mo-mov" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
-    <div class="mo-content" style="padding: 32px 24px; max-width: 600px; max-height: 85vh; overflow-y: auto">
+    <div class="mo-content" onclick="event.stopPropagation()" style="padding: 32px 24px; max-width: 600px; max-height: 85vh; overflow-y: auto">
       <div class="shdr" style="margin-bottom: 20px">
         <span class="shdr-t">Movimentações</span>
         <div style="display: flex; gap: 8px">
@@ -256,7 +256,7 @@
 
   <!-- Modal: Settings Elite 2.0 -->
   <div id="mo-settings" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
-    <div class="mo-content">
+    <div class="mo-content" onclick="event.stopPropagation()">
       <div class="mo-grid">
         <!-- Form Column -->
         <div class="mo-col-form">
@@ -307,7 +307,7 @@
 
   <!-- Modal: Change Password -->
   <div id="mo-password" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
-    <div class="mo-content" style="padding: 32px 24px; max-width: 400px">
+    <div class="mo-content" onclick="event.stopPropagation()" style="padding: 32px 24px; max-width: 400px">
       <h3 class="shdr-t">Trocar Senha</h3>
       <div class="mf" style="margin-top:24px">
         <div class="fl">

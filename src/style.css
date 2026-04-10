@@ -801,8 +801,9 @@ textarea.fi { resize: none; }
   .dash-tabs { width: 100%; justify-content: flex-start !important; }
   .dash-date-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
 
-  /* Redução de padding para ganhar espaço */
-  .mo-content { padding: 24px 16px !important; border-radius: 20px !important; width: 95% !important; max-width: 450px !important; }
+  /* Redução de padding para ganhar espaço e estabilizar scroll */
+  .mo { justify-content: flex-start !important; padding-top: 60px !important; }
+  .mo-content { padding: 24px 16px !important; border-radius: 20px !important; width: 95% !important; max-width: 450px !important; margin-bottom: 40px; }
   .dash-content { padding: 12px !important; }
   .pg-inner { padding: 0 8px 100px !important; }
   .card { padding: 16px !important; }

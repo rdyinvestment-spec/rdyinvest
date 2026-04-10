@@ -187,14 +187,13 @@ window.saveDeposit = async () => {
   if (!error) { 
     toast('Aporte realizado'); 
     closeMo(); 
-    if (window.currentPage === 'movements') renderPage('movements');
-    else initApp();
+    initApp();
   }
 };
 window.delDeposit = async (id) => {
   if (confirm('Excluir este aporte?')) {
+    await store.deleteDeposit(id);
     await initApp();
-    if (window.currentPage === 'movements') renderPage('movements');
   }
 };
 
@@ -209,14 +208,13 @@ window.saveWithdrawal = async () => {
   if (!error) { 
     toast('Resgate realizado'); 
     closeMo(); 
-    if (window.currentPage === 'movements') renderPage('movements');
-    else initApp();
+    initApp();
   }
 };
 window.delWithdrawal = async (id) => {
   if (confirm('Excluir este resgate?')) {
+    await store.deleteWithdrawal(id);
     await initApp();
-    if (window.currentPage === 'movements') renderPage('movements');
   }
 };
 
