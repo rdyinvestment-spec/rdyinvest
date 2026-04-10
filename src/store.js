@@ -35,6 +35,8 @@ export function CALC() {
   let grossWins = 0, grossLosses = 0, planCount = 0;
 
   const tRate = (cfg.tax_rate || 1) / 100;
+  let tWins = 0, tLosses = 0;
+  
   state.days.forEach(day => {
     const contracts = Number(day.contracts_used || 1);
     const grossPL = Number(day.profit_loss || 0);
@@ -46,6 +48,9 @@ export function CALC() {
     if (grossPL > 0) grossWins += grossPL;
     else if (grossPL < 0) grossLosses += Math.abs(grossPL);
     if (day.followed_plan) planCount++;
+    
+    tWins += Number(day.wins) || 0;
+    tLosses += Number(day.losses) || 0;
   });
 
   const depSum = state.deposits.reduce((a, b) => a + Number(b.amount), 0);
@@ -53,8 +58,9 @@ export function CALC() {
   const balance = startCap + depSum - wdSum + totalPL;
 
   const allDays = state.days.length;
-  const wins = state.days.filter(d => Number(d.profit_loss) > 0).length;
-  const wr = allDays ? (wins / allDays) * 100 : 0;
+  const dWins = state.days.filter(d => Number(d.profit_loss) > 0).length;
+  const totalTrades = tWins + tLosses;
+  const wr = totalTrades ? (tWins / totalTrades) * 100 : 0;
   const pf = grossLosses ? grossWins / grossLosses : (grossWins > 0 ? 999 : 0);
   const planPct = allDays ? (planCount / allDays) * 100 : 0;
   const ruleVal = Number(cfg.contract_rule_value || 400);
@@ -94,8 +100,8 @@ export function monthCALC(year, month) {
   const mDeps = state.deposits.filter(d => d.date.startsWith(key));
   const mWds = state.withdrawals.filter(d => d.date.startsWith(key));
 
-  let pl = 0, totalBro = 0, totalIR = 0;
-  let wins = 0, losses = 0, grossWins = 0, grossLosses = 0;
+  let pl = 0, totalBro = 0, totalIR = 0, grossWins = 0, grossLosses = 0;
+  let dWins = 0, dLosses = 0, tWins = 0, tLosses = 0;
 
   mDays.forEach(d => {
     const contracts = Number(d.contracts_used || 1);
@@ -106,21 +112,83 @@ export function monthCALC(year, month) {
     pl += grossPL - brokerage - ir;
     totalBro += brokerage;
     totalIR += ir;
-    if (grossPL > 0) { wins++; grossWins += grossPL; }
-    else if (grossPL < 0) { losses++; grossLosses += Math.abs(grossPL); }
+    if (grossPL > 0) { dWins++; grossWins += grossPL; }
+    else if (grossPL < 0) { dLosses++; grossLosses += Math.abs(grossPL); }
+    tWins += Number(d.wins) || 0;
+    tLosses += Number(d.losses) || 0;
   });
 
   const dep = mDeps.reduce((a, b) => a + Number(b.amount), 0);
   const wd = mWds.reduce((a, b) => a + Number(b.amount), 0);
-  const wr = (wins + losses) ? (wins / (wins + losses)) * 100 : 0;
+  const totalOps = tWins + tLosses;
+  const wr = totalOps ? (tWins / totalOps) * 100 : 0;
   const avgDay = mDays.length ? pl / mDays.length : 0;
   const pf = grossLosses ? grossWins / grossLosses : (grossWins > 0 ? 999 : 0);
 
   return {
-    pl, totalBro, totalIR, wins, losses,
-    posD: wins, negD: losses,
+    pl, totalBro, totalIR, wins: dWins, losses: dLosses,
+    posD: dWins, negD: dLosses, tWins, tLosses,
     wr, dep, wd, days: mDays,
-    avgDay, trades: mDays.length, pf
+    avgDay, trades: totalOps, pf
+  };
+}
+
+export function rangeCALC(start, end) {
+  const rDays = state.days.filter(d => d.date >= start && d.date <= end);
+  const rDeps = state.deposits.filter(d => d.date >= start && d.date <= end);
+  const rWds = state.withdrawals.filter(d => d.date >= start && d.date <= end);
+  const cfg = state.config || {};
+  const opDays = cfg.operation_days || [1, 2, 3, 4, 5]; // Mon-Fri default
+
+  let pl = 0, totalBro = 0, totalIR = 0, grossWins = 0, grossLosses = 0, totalPts = 0, totalContracts = 0;
+  let dWins = 0, dLosses = 0, tWins = 0, tLosses = 0;
+
+  rDays.forEach(d => {
+    const contracts = Number(d.contracts_used || 0);
+    const grossPL = Number(d.profit_loss || 0);
+    const brokerage = contracts * 0.5;
+    const tRate = (cfg.tax_rate || 1) / 100;
+    const ir = grossPL > 0 ? grossPL * tRate : 0;
+    
+    pl += grossPL - brokerage - ir;
+    totalBro += brokerage;
+    totalIR += ir;
+    totalPts += Number(d.points) || 0;
+    totalContracts += contracts;
+
+    if (grossPL > 0) { dWins++; grossWins += grossPL; }
+    else if (grossPL < 0) { dLosses++; grossLosses += Math.abs(grossPL); }
+    
+    tWins += Number(d.wins) || 0;
+    tLosses += Number(d.losses) || 0;
+  });
+
+  // Calculate Not Traded
+  let notTraded = 0;
+  let s = new Date(start + 'T00:00:00');
+  let e = new Date(end + 'T00:00:00');
+  for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+    const dStr = d.toISOString().split('T')[0];
+    const dayOfWeek = d.getDay(); // 0=Sun, 1=Mon...
+    if (opDays.includes(dayOfWeek)) {
+      if (!rDays.find(x => x.date === dStr)) notTraded++;
+    }
+  }
+
+  const dep = rDeps.reduce((a, b) => a + Number(b.amount), 0);
+  const wd = rWds.reduce((a, b) => a + Number(b.amount), 0);
+  const totalOps = tWins + tLosses;
+  const tWr = totalOps ? (tWins / totalOps) * 100 : 0;
+  const pf = grossLosses ? grossWins / grossLosses : (grossWins > 0 ? 999 : 0);
+  const avgDay = rDays.length ? pl / rDays.length : 0;
+
+  return {
+    pl, totalBro, totalIR, 
+    posD: dWins, negD: dLosses, notTraded,
+    tWins, tLosses, totalOps, tWr,
+    totalPts, totalContracts,
+    wr: (dWins + dLosses) ? (dWins / (dWins + dLosses)) * 100 : 0,
+    dep, wd, avgDay, pf, days: rDays
   };
 }
 

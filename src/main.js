@@ -66,6 +66,13 @@ window.openDailyModal = (dateStr = today(), existing = null) => {
     const pct = (pVal / sBal) * 100;
     const pctEl = document.getElementById('df-pl-pct');
     if (pctEl) pctEl.innerText = pVal !== 0 ? `(${pct > 0 ? '+' : ''}${pct.toFixed(2)}%)` : '';
+    
+    // Trade volume sync
+    const w = Number(day?.wins || 0);
+    const l = Number(day?.losses || 0);
+    document.getElementById('df-wins-op').value = w;
+    document.getElementById('df-losses-op').value = l;
+    document.getElementById('df-total-op').value = w + l;
   }, 50);
 };
 
@@ -93,10 +100,10 @@ window.saveDaily = async () => {
     profit_loss: plValue,
     starting_balance: Number(document.getElementById('df-st').value),
     ending_balance: Number(document.getElementById('df-st').value) + plValue,
-    trades_count: 0, // Removido do UI
+    trades_count: Number(document.getElementById('df-total-op').value) || 0,
     contracts_used: contracts,
-    wins: plValue > 0 ? 1 : 0,
-    losses: plValue < 0 ? 1 : 0,
+    wins: Number(document.getElementById('df-wins-op').value) || 0,
+    losses: Number(document.getElementById('df-losses-op').value) || 0,
     setup: document.getElementById('df-setup').value,
     notes: document.getElementById('df-notes').value,
     followed_plan: document.getElementById('tog-plan').classList.contains('on'),
@@ -113,8 +120,8 @@ window.saveDaily = async () => {
   if (error) toast('Erro ao salvar: ' + error.message, 'err');
   else {
     toast('Dia registrado com sucesso!');
-    closeMo();
-    showPage('calendar');
+    closeMo('mo-day');
+    initApp();
   }
 };
 
@@ -170,6 +177,16 @@ window.openSettingsMo = () => {
   document.getElementById('cfg-rule').value = cfg.contract_rule_value || 500;
   document.getElementById('cfg-point-val').value = cfg.point_value || 0.20;
   document.getElementById('cfg-tax-rate').value = cfg.tax_rate || 1.0;
+
+  // Operational Days Logic
+  const btns = document.querySelectorAll('.day-btn');
+  const opDays = cfg.operation_days || [1, 2, 3, 4, 5];
+  btns.forEach(btn => {
+    const d = parseInt(btn.dataset.day);
+    btn.classList.toggle('active', opDays.includes(d));
+    btn.onclick = () => btn.classList.toggle('active');
+  });
+
   updateSettingsPreview();
   openMo('mo-settings');
 };
@@ -212,7 +229,8 @@ window.saveSettings = async () => {
     monthly_goal: parseNum('cfg-goal'),
     contract_rule_value: parseNum('cfg-rule'),
     point_value: parseNum('cfg-point-val'),
-    tax_rate: parseNum('cfg-tax-rate')
+    tax_rate: parseNum('cfg-tax-rate'),
+    operation_days: Array.from(document.querySelectorAll('.day-btn.active')).map(b => parseInt(b.dataset.day))
   };
   
   const [res1, res2] = await Promise.all([
@@ -412,6 +430,17 @@ window.changeRepMonth = (diff) => {
   renderPage('reports');
 };
 
+window.setRepTab = (t) => {
+  window.pgState.repTab = t;
+  renderPage('reports');
+};
+
+window.setRepRange = (type, val) => {
+  if (type === 'start') window.pgState.repStart = val;
+  if (type === 'end') window.pgState.repEnd = val;
+  renderPage('reports');
+};
+
 /* ─── Auth & Init ────────────────────── */
 async function initApp() {
   try {
@@ -562,9 +591,17 @@ function initDailyCalc() {
     }
   };
 
+  const syncOps = () => {
+    const w = Number(document.getElementById('df-wins-op').value) || 0;
+    const l = Number(document.getElementById('df-losses-op').value) || 0;
+    document.getElementById('df-total-op').value = w + l;
+  };
+
   pts.oninput = () => sync('pts');
   contracts.oninput = () => sync('contracts');
   val.oninput = () => sync('val');
+  document.getElementById('df-wins-op').oninput = syncOps;
+  document.getElementById('df-losses-op').oninput = syncOps;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

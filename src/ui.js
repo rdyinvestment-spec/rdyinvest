@@ -1,4 +1,4 @@
-import { state, CALC, monthCALC } from './store';
+import { state, CALC, monthCALC, rangeCALC } from './store';
 import { fR, fPct, cv, MS, MN, today, getDailyVerse } from './utils';
 import Chart from 'chart.js/auto';
 
@@ -6,48 +6,63 @@ import Chart from 'chart.js/auto';
  * Main Rendering Router
  */
 export function renderPage(page, options = {}) {
-  const container = document.getElementById('page-content');
-  if (!container) return;
+  try {
+    const container = document.getElementById('page-content');
+    if (!container) return;
 
     // Global Page State (For filters/tabs)
-  if(!window.pgState) {
-    window.pgState = {
-      dashFilter: 'total',
-      repTab: 'monthly',
-      repM: new Date().getMonth(),
-      repY: new Date().getFullYear(),
-      calM: new Date().getMonth(),
-      calY: new Date().getFullYear()
-    };
-  }
+    if(!window.pgState) {
+      window.pgState = {
+        dashFilter: 'total',
+        repTab: 'monthly',
+        repM: new Date().getMonth(),
+        repY: new Date().getFullYear(),
+        calM: new Date().getMonth(),
+        calY: new Date().getFullYear()
+      };
+    }
 
-  if (window.activeCharts) {
-    Object.values(window.activeCharts).forEach(c => c.destroy());
-  }
-  window.activeCharts = {};
+    if (window.activeCharts) {
+      Object.values(window.activeCharts).forEach(c => c.destroy());
+    }
+    window.activeCharts = {};
 
-  container.classList.remove('page-transition-enter');
-  void container.offsetWidth;
-  container.classList.add('page-transition-enter');
+    container.classList.remove('page-transition-enter');
+    void container.offsetWidth;
+    container.classList.add('page-transition-enter');
 
-  switch (page) {
-    case 'dashboard':
-      container.innerHTML = pgDashboard();
-      mountDashboardCharts();
-      break;
-    case 'calendar':
-      container.innerHTML = pgCalendar();
-      mountCalendarCharts();
-      break;
-    case 'reports':
-      container.innerHTML = pgReports();
-      mountReportsCharts();
-      break;
-    case 'settings':
-      container.innerHTML = pgSettings();
-      break;
-    default:
-      container.innerHTML = `<div style="padding:24px"><div class="card">Página em construção</div></div>`;
+    switch (page) {
+      case 'dashboard':
+        container.innerHTML = pgDashboard();
+        mountDashboardCharts();
+        break;
+      case 'calendar':
+        container.innerHTML = pgCalendar();
+        mountCalendarCharts();
+        break;
+      case 'reports':
+        container.innerHTML = pgReports();
+        mountReportsCharts();
+        break;
+      case 'settings':
+        container.innerHTML = pgSettings();
+        break;
+      default:
+        container.innerHTML = `<div style="padding:24px"><div class="card">Página em construção</div></div>`;
+    }
+  } catch (err) {
+    console.error('Render Error:', err);
+    const container = document.getElementById('page-content');
+    if (container) {
+      container.innerHTML = `
+        <div style="padding:40px; text-align:center">
+          <div style="font-size:48px; margin-bottom:16px">❌</div>
+          <h2 style="color:var(--red); margin-bottom:8px">Erro de Renderização</h2>
+          <p style="color:var(--text3); font-size:14px">${err.message}</p>
+          <button class="btn btn-xp" style="margin-top:24px" onclick="location.reload()">Recarregar App</button>
+        </div>
+      `;
+    }
   }
 }
 
@@ -55,7 +70,7 @@ export function renderPage(page, options = {}) {
 function pgDashboard() {
   const c = CALC();
   const isPos = c.totalPL >= 0;
-  const name = state.profile?.name?.split(' ')[0] || 'Trader';
+  const name = (state.profile?.name?.split(' ') || [])[0] || 'Trader';
   const now = new Date();
   const dateStr = now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 
@@ -74,13 +89,25 @@ function pgDashboard() {
 
         <!-- Right Column: Card Visual -->
         <div class="hero-visual" style="display: flex; justify-content: center">
-          <div onclick="showPage('settings')" style="width: 100%; max-width: 400px; height: 220px; background: linear-gradient(135deg, #111, #000); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; position: relative; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.8); cursor: pointer">
-            <div style="position: absolute; top: 32px; left: 32px; font-size: 24px; font-weight: 900; color: #FFD100; letter-spacing: -1px">RDY</div>
-            <div style="position: absolute; bottom: 32px; left: 32px; font-size: 14px; font-weight: 700; color: #FFF; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px">${state.profile?.card_name || state.profile?.name || 'Membro Elite'}</div>
-            <div style="position: absolute; top: 32px; right: 32px; width: 48px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 4px; display: flex; align-items: center; justify-content: center">
-              <div style="width: 24px; height: 16px; background: #FFD100; border-radius: 2px; opacity: 0.8"></div>
+          <div class="card-3d">
+            <div class="card-3d-inner" onclick="showPage('settings')">
+              
+              <!-- Front Face -->
+              <div class="cf-front">
+                <div class="cf-logo">RDY</div>
+                <div class="cf-chip"></div>
+                <div class="cf-name">${state.profile?.card_name || state.profile?.name || 'Membro Elite'}</div>
+                <div style="position: absolute; inset: 0; background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.03) 50%, transparent 60%); pointer-events: none"></div>
+              </div>
+
+              <!-- Back Face -->
+              <div class="cf-back">
+                <div style="font-size: 24px; margin-bottom: 8px">⚙️</div>
+                <div style="font-weight: 900; text-transform: uppercase; letter-spacing: 2px; font-size: 14px">Configurar Perfil</div>
+                <div style="font-size: 10px; opacity: 0.8; margin-top: 4px; font-weight: 700">CLIQUE PARA EDITAR</div>
+              </div>
+
             </div>
-            <div style="position: absolute; inset: 0; background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.03) 50%, transparent 60%); pointer-events: none"></div>
           </div>
         </div>
       </div>
@@ -132,11 +159,17 @@ function pgDashboard() {
               <span style="font-size: 12px; color: var(--text3); font-weight: 600">IRPF Provisório (1%)</span>
               <span class="mono" style="color: var(--red); font-size: 16px">-${fR(c.totalIR)}</span>
             </div>
-            <div style="border-top: 1px solid var(--border); padding-top: 12px; display: flex; justify-content: space-between">
+            <div style="border-top: 1px solid var(--border); padding-top: 12px; display: flex; justify-content: space-between; align-items:center">
               <span style="font-size: 11px; color: var(--text2); font-weight: 800; text-transform: uppercase">Total Deduções</span>
               <span class="mono" style="color: var(--red); font-size: 16px">-${fR(c.totalBro + c.totalIR)}</span>
             </div>
           </div>
+          
+          ${state.days.find(d => d.date === today()) ? `
+            <button class="btn btn-ghost" style="width:100%; margin-top:16px; font-size:11px; height:36px" onclick="openDailyModal('${today()}')">
+              <span style="margin-right:8px">📝</span> Editar Operações de Hoje
+            </button>
+          ` : ''}
         </div>
 
         <!-- Curva de Capital -->
@@ -175,24 +208,32 @@ function calcGrowth(days) {
 
 /* ─── Chart.js Global Initialization ─── */
 export function initChartDefaults() {
+  if (!Chart || !Chart.defaults) return;
+  
   Chart.defaults.color = '#808080';
   Chart.defaults.font.family = "'Inter', sans-serif";
   Chart.defaults.font.size = 11;
   Chart.defaults.font.weight = '800';
   
   // Standardize tooltips to XP style (Carbon/Supernova)
-  Chart.defaults.plugins.tooltip.backgroundColor = '#000000';
-  Chart.defaults.plugins.tooltip.borderColor = 'rgba(255, 209, 0, 0.4)';
-  Chart.defaults.plugins.tooltip.borderWidth = 1;
-  Chart.defaults.plugins.tooltip.padding = 12;
-  Chart.defaults.plugins.tooltip.cornerRadius = 8;
-  Chart.defaults.plugins.tooltip.titleFont = { size: 11, weight: 'bold' };
-  Chart.defaults.plugins.tooltip.bodyFont = { size: 14, weight: '800' };
-  Chart.defaults.plugins.tooltip.displayColors = false;
+  if (Chart.defaults.plugins?.tooltip) {
+    Chart.defaults.plugins.tooltip.backgroundColor = '#000000';
+    Chart.defaults.plugins.tooltip.borderColor = 'rgba(255, 209, 0, 0.4)';
+    Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.plugins.tooltip.padding = 12;
+    Chart.defaults.plugins.tooltip.cornerRadius = 8;
+    Chart.defaults.plugins.tooltip.titleFont = { size: 11, weight: 'bold' };
+    Chart.defaults.plugins.tooltip.bodyFont = { size: 14, weight: '800' };
+    Chart.defaults.plugins.tooltip.displayColors = false;
+  }
 
   // Standardize scales (v4 syntax)
-  Chart.defaults.scale.grid.color = 'rgba(255,255,255,0.03)';
-  Chart.defaults.scale.ticks.color = '#606060';
+  if (Chart.defaults.scale?.grid) {
+     Chart.defaults.scale.grid.color = 'rgba(255,255,255,0.03)';
+  }
+  if (Chart.defaults.scale?.ticks) {
+    Chart.defaults.scale.ticks.color = '#606060';
+  }
 }
 
 /* ─── Charts ─────────────────────────── */
@@ -402,6 +443,7 @@ function pgReports() {
         <div class="tabs">
           <button class="tab ${tab === 'month' ? 'on' : ''}" onclick="setRepTab('month')">Mensal</button>
           <button class="tab ${tab === 'year' ? 'on' : ''}" onclick="setRepTab('year')">Anual</button>
+          <button class="tab ${tab === 'custom' ? 'on' : ''}" onclick="setRepTab('custom')">Personalizado</button>
           <button class="tab ${tab === 'goals' ? 'on' : ''}" onclick="setRepTab('goals')">Objetivos</button>
           <button class="tab ${tab === 'proj' ? 'on' : ''}" onclick="setRepTab('proj')">Projeção</button>
           <button class="tab ${tab === 'juros' ? 'on' : ''}" onclick="setRepTab('juros')">Juros</button>
@@ -442,6 +484,70 @@ function pgReports() {
              <div><div class="st-lb">Média/Dia</div><div class="mono" style="font-size:20px">${fR(mc.avgDay)}</div></div>
           </div>
         </div>
+      </div>
+    `;
+  } else if (tab === 'custom') {
+    const start = window.pgState.repStart || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+    const end = window.pgState.repEnd || new Date().toISOString().split('T')[0];
+    const rc = rangeCALC(start, end);
+
+    html += `
+      <div class="card" style="margin-bottom: 24px">
+        <div class="shdr-t">Filtro de Intervalo</div>
+        <div style="display:flex; gap:16px; margin-top:16px; flex-wrap:wrap">
+          <div class="fl" style="flex:1; min-width:150px">
+            <label class="fl-lb">Início</label>
+            <input type="date" class="fi" value="${start}" onchange="setRepRange('start', this.value)">
+          </div>
+          <div class="fl" style="flex:1; min-width:150px">
+            <label class="fl-lb">Fim</label>
+            <input type="date" class="fi" value="${end}" onchange="setRepRange('end', this.value)">
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px">
+        
+        <!-- Finance Card -->
+        <div class="card">
+          <div class="shdr-t">Resumo Financeiro</div>
+          <div style="margin:20px 0; display:grid; grid-template-columns: 1fr 1fr; gap:20px">
+            <div><div class="st-lb">Resultado Líquido</div><div class="st-val-lg ${cv(rc.pl)}">${fR(rc.pl)}</div></div>
+            <div><div class="st-lb">Profit Factor</div><div class="st-val-lg" style="color:var(--green)">${rc.pf.toFixed(2)}</div></div>
+            <div><div class="st-lb">Aportes</div><div class="st-val" style="color:var(--blue)">${fR(rc.dep)}</div></div>
+            <div><div class="st-lb">Retiradas</div><div class="st-val" style="color:var(--red)">${fR(rc.wd)}</div></div>
+          </div>
+        </div>
+
+        <!-- Performance Card -->
+        <div class="card">
+          <div class="shdr-t">Consistência e Volume</div>
+          <div style="margin:20px 0; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px">
+             <div><div class="st-lb">Dias Positivos</div><div class="st-val pos">${rc.posD}</div></div>
+             <div><div class="st-lb">Dias Negativos</div><div class="st-val neg">${rc.negD}</div></div>
+             <div><div class="st-lb">Não Operados</div><div class="st-val" style="opacity:0.6">${rc.notTraded}</div></div>
+             
+             <div><div class="st-lb">Total Trades</div><div class="st-val">${rc.totalOps}</div></div>
+             <div><div class="st-lb">Vencidos</div><div class="st-val pos">${rc.tWins}</div></div>
+             <div><div class="st-lb">Perdidos</div><div class="st-val neg">${rc.tLosses}</div></div>
+          </div>
+          <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center">
+            <span class="st-lb">Taxa de Acerto (Trades)</span>
+            <span style="font-weight:900; color:var(--xp); font-size:18px">${fPct(rc.tWr)}</span>
+          </div>
+        </div>
+
+        <!-- Metrics Card -->
+        <div class="card">
+          <div class="shdr-t">Dados Operacionais</div>
+          <div style="margin:20px 0; display:grid; grid-template-columns: 1fr 1fr; gap:20px">
+             <div><div class="st-lb">Total Pontos</div><div class="st-val">${rc.totalPts.toLocaleString()}</div></div>
+             <div><div class="st-lb">Total Contratos</div><div class="st-val">${rc.totalContracts}</div></div>
+             <div><div class="st-lb">Média Pontos/Dia</div><div class="st-val" style="color:var(--xp)">${(rc.totalPts / (rc.posD + rc.negD || 1)).toFixed(0)}</div></div>
+             <div><div class="st-lb">Média Lucro/Dia</div><div class="st-val ${cv(rc.avgDay)}">${fR(rc.avgDay)}</div></div>
+          </div>
+        </div>
+
       </div>
     `;
   } else if (tab === 'goals') {

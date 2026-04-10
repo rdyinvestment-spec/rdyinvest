@@ -350,30 +350,30 @@ textarea.fi { resize: none; }
 .star.on { color: var(--gold); }
 
 /* ─── Calendar ─────────────────── */
-.cal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-top: 16px; }
-.cal-mo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+.cal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-top: 24px; }
+.cal-mo { font-size: 32px; font-weight: 900; letter-spacing: -1.5px; }
 .cal-nb { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text); cursor: pointer; font-size: 16px; }
 .cal-wds { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; margin-bottom: 4px; }
 .cal-wd { text-align: center; font-size: 10px; font-weight: 700; color: var(--text3); padding: 5px 0; text-transform: uppercase; letter-spacing: 0.8px; }
-.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; }
 .cd {
-  min-height: 100px; border-radius: 12px; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; padding: 10px 4px;
-  cursor: pointer; border: 1px solid rgba(255,255,255,0.03); position: relative; gap: 6px;
-  transition: all 0.2s var(--ease); background: rgba(255,255,255,0.02);
+  min-height: 130px; border-radius: 16px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 12px 6px;
+  cursor: pointer; border: 1px solid rgba(255,255,255,0.03); position: relative; gap: 8px;
+  transition: all 0.3s var(--ease); background: rgba(255,255,255,0.02);
 }
-.cd:hover { transform: scale(1.02); z-index: 10; background: rgba(255,255,255,0.05); border-color: var(--glass-border); }
+.cd:hover { transform: translateY(-4px) scale(1.02); z-index: 10; background: rgba(255,255,255,0.05); border-color: rgba(255, 209, 0, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
 .cd.empty { background: transparent; cursor: default; border: none; }
 .cd.neu { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
-.cd.pos { background: rgba(0,196,113,0.08); border-color: rgba(0,196,113,0.2); }
-.cd.neg { background: rgba(255,64,64,0.08); border-color: rgba(255,64,64,0.18); }
+.cd.pos { background: rgba(0,230,118,0.08); border-color: rgba(0,230,118,0.22); }
+.cd.neg { background: rgba(255,82,82,0.08); border-color: rgba(255,82,82,0.2); }
 .cd.tod { box-shadow: 0 0 0 2px var(--xp) !important; }
-.cd-n { font-size: 16px; font-weight: 800; line-height: 1; }
+.cd-n { font-size: 20px; font-weight: 900; line-height: 1; margin-bottom: 2px; }
 .cd.pos .cd-n { color: #E8EFF8; } .cd.neg .cd-n { color: #FFD0D8; } .cd.neu .cd-n { color: var(--text2); }
-.cd-v { font-size: 13px; font-weight: 800; line-height: 1; letter-spacing: -0.5px; }
+.cd-v { font-size: 14px; font-weight: 900; line-height: 1; letter-spacing: -0.5px; }
 .cd.pos .cd-v { color: var(--green); } .cd.neg .cd-v { color: var(--red); }
-.cd-pct { font-size: 8px; color: rgba(0,180,120,0.55); font-weight: 700; line-height: 1; }
-.cd.neg .cd-pct { color: rgba(255,100,120,0.55); }
+.cd-pct { font-size: 11px; color: rgba(0,230,118,0.7); font-weight: 800; line-height: 1; }
+.cd.neg .cd-pct { color: rgba(255,82,82,0.7); }
 .cd-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--xp); position: absolute; top: 4px; right: 4px; }
 [data-theme="light"] .cd.pos { background: rgba(0,196,113,0.10); } [data-theme="light"] .cd.neg { background: rgba(255,64,64,0.08); }
 
@@ -440,6 +440,20 @@ textarea.fi { resize: none; }
 .mr-lb { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
 .mr-val { font-size: 15px; font-weight: 800; letter-spacing: -0.4px; }
 
+/* ─── Day Selector ──────────────── */
+.day-btn {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text3); font-size: 12px; font-weight: 800;
+  cursor: pointer; transition: all 0.2s var(--ease);
+  display: flex; align-items: center; justify-content: center;
+}
+.day-btn:hover { border-color: var(--border2); color: var(--text); }
+.day-btn.active { 
+  background: var(--xp); border-color: var(--xp); color: #000;
+  box-shadow: 0 0 15px var(--xp-glow);
+}
+
 /* ─── Responsive Desktop ─────────── */
 @media (min-width: 1024px) {
   .desktop-nav { display: flex !important; }
@@ -465,3 +479,45 @@ textarea.fi { resize: none; }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 .toast.ok { border-color: rgba(0,196,113,0.3); color: var(--green); background: rgba(0,196,113,0.08); }
 .toast.err { border-color: rgba(255,64,64,0.3); color: var(--red); background: rgba(255,64,64,0.08); }
+
+/* ─── 3D Card Flip ──────────────── */
+.card-3d {
+  perspective: 1200px;
+  width: 100%; max-width: 400px; height: 220px;
+  margin: 0 auto;
+}
+.card-3d-inner {
+  position: relative; width: 100%; height: 100%;
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-style: preserve-3d;
+}
+.card-3d:hover .card-3d-inner { transform: rotateY(180deg); }
+.cf-front, .cf-back {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: 20px; border: 1px solid rgba(255,255,255,0.12);
+  display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+}
+.cf-front {
+  background: linear-gradient(135deg, #161616, #000);
+  z-index: 2;
+}
+.cf-back {
+  background: linear-gradient(135deg, #FFD100, #B8860B);
+  transform: rotateY(180deg);
+  justify-content: center; align-items: center; padding: 20px;
+  color: #000;
+}
+.cf-logo {
+  position: absolute; top: 32px; left: 32px; font-size: 28px; font-weight: 900; color: var(--xp); letter-spacing: -1.5px;
+}
+.cf-name {
+  position: absolute; bottom: 32px; left: 32px; font-size: 13px; font-weight: 800; color: #FFF; opacity: 0.7; text-transform: uppercase; letter-spacing: 1.5px;
+}
+.cf-chip {
+  position: absolute; top: 32px; right: 32px; width: 50px; height: 36px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.cf-chip::after { content: ''; width: 28px; height: 20px; background: #FFD100; border-radius: 3px; opacity: 0.6; }
