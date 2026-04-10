@@ -18,9 +18,11 @@ export function calcStartingBalance(date) {
   const depsAte = state.deposits.filter(d => d.date < date).reduce((a, d) => a + Number(d.amount), 0);
   const wdsAte = state.withdrawals.filter(d => d.date < date).reduce((a, d) => a + Number(d.amount), 0);
   const plAte = [...state.days].sort((a, b) => a.date.localeCompare(b.date)).filter(d => d.date < date).reduce((a, d) => {
+    const cfg_d = state.config || {};
+    const tRate = (cfg_d.tax_rate || 1) / 100;
     const contracts = Number(d.contracts_used || 1);
     const grossPL = Number(d.profit_loss || 0);
-    return a + (grossPL - contracts * 0.5 - (grossPL > 0 ? grossPL * 0.01 : 0));
+    return a + (grossPL - contracts * 0.5 - (grossPL > 0 ? grossPL * tRate : 0));
   }, 0);
   return startCap + depsAte - wdsAte + plAte;
 }
@@ -32,11 +34,12 @@ export function CALC() {
   let totalPL = 0, totalBro = 0, totalIR = 0;
   let grossWins = 0, grossLosses = 0, planCount = 0;
 
+  const tRate = (cfg.tax_rate || 1) / 100;
   state.days.forEach(day => {
     const contracts = Number(day.contracts_used || 1);
     const grossPL = Number(day.profit_loss || 0);
     const brokerage = contracts * 0.5;
-    const ir = grossPL > 0 ? grossPL * 0.01 : 0;
+    const ir = grossPL > 0 ? grossPL * tRate : 0;
     totalPL += grossPL - brokerage - ir;
     totalBro += brokerage;
     totalIR += ir;
@@ -67,7 +70,8 @@ export function CALC() {
     const contracts_d = Number(d.contracts_used || 1);
     const grossPL_d = Number(d.profit_loss || 0);
     const brokerage_d = contracts_d * 0.5;
-    const ir_d = grossPL_d > 0 ? grossPL_d * 0.01 : 0;
+    const tRate_d = (cfg.tax_rate || 1) / 100;
+    const ir_d = grossPL_d > 0 ? grossPL_d * tRate_d : 0;
     runBal += dayDeps - dayWds + (grossPL_d - brokerage_d - ir_d);
     return { x: d.date, y: runBal };
   });
@@ -97,7 +101,8 @@ export function monthCALC(year, month) {
     const contracts = Number(d.contracts_used || 1);
     const grossPL = Number(d.profit_loss || 0);
     const brokerage = contracts * 0.5;
-    const ir = grossPL > 0 ? grossPL * 0.01 : 0;
+    const tRate = (state.config?.tax_rate || 1) / 100;
+    const ir = grossPL > 0 ? grossPL * tRate : 0;
     pl += grossPL - brokerage - ir;
     totalBro += brokerage;
     totalIR += ir;

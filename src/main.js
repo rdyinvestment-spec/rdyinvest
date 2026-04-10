@@ -158,6 +158,8 @@ window.openSettingsMo = () => {
   document.getElementById('cfg-cap').value = cfg.starting_capital || 0;
   document.getElementById('cfg-goal').value = cfg.monthly_goal || 0;
   document.getElementById('cfg-rule').value = cfg.contract_rule_value || 500;
+  document.getElementById('cfg-point-val').value = cfg.point_value || 0.20;
+  document.getElementById('cfg-tax-rate').value = cfg.tax_rate || 1.0;
   openMo('mo-settings');
 };
 
@@ -167,7 +169,9 @@ window.saveSettings = async () => {
   const cfg = {
     starting_capital: Number(document.getElementById('cfg-cap').value),
     monthly_goal: Number(document.getElementById('cfg-goal').value),
-    contract_rule_value: Number(document.getElementById('cfg-rule').value)
+    contract_rule_value: Number(document.getElementById('cfg-rule').value),
+    point_value: Number(document.getElementById('cfg-point-val').value),
+    tax_rate: Number(document.getElementById('cfg-tax-rate').value)
   };
   
   const [res1, res2] = await Promise.all([
@@ -211,9 +215,15 @@ window.calcProj = () => {
   
   let resHtml = `<table class="f-table"><thead><tr><th>Mês</th><th>Contratos</th><th>Ganhos</th><th>Banca</th></tr></thead><tbody>`;
   
+  const pValue = Number(state.config?.point_value || 0.2);
+  const tRate = Number(state.config?.tax_rate || 1) / 100;
+
   for (let m = 1; m <= months; m++) {
     const contracts = Math.max(1, Math.floor(currentCap / step));
-    const monthlyGain = contracts * pts * 0.2 * 20; // 20 dias úteis
+    const grossMonthly = contracts * pts * pValue * 20; 
+    const brokerage = contracts * 0.5 * 20 * 2; // Estimativa (2 trades/dia)
+    const ir = grossMonthly > 0 ? grossMonthly * tRate : 0;
+    const monthlyGain = grossMonthly - brokerage - ir;
     currentCap += monthlyGain;
     
     labels.push(`${m}º Mês`);
