@@ -59,7 +59,7 @@ window.openDailyModal = (dateStr = today(), existing = null) => {
   document.getElementById('df-del-wrap').style.display = day ? 'block' : 'none';
   window.currentDayId = day ? day.id : null;
   
-  openMo('mo-daily');
+  openMo('mo-day');
 };
 
 function setTog(id, val) {
