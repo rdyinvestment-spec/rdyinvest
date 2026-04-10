@@ -368,8 +368,14 @@ async function initApp() {
     } else {
       document.getElementById('screen-login').style.display = 'none';
       document.getElementById('screen-app').style.display = 'block';
-      await store.loadAll();
-      window.showPage('dashboard');
+      
+      try {
+        await store.loadAll();
+        window.showPage('dashboard');
+      } catch (loadErr) {
+        alert('❌ Falha ao carregar seus dados: ' + loadErr.message);
+        console.error(loadErr);
+      }
     }
   } catch (err) {
     console.error('CRITICAL INIT FAILURE:', err);
@@ -398,16 +404,41 @@ function initAuthFlow() {
     } else {
       if (isRem) localStorage.setItem('rdy_remembered_email', email);
       else localStorage.removeItem('rdy_remembered_email');
-      location.reload();
+      initApp(); // Smooth transition without splash
     }
   };
   document.getElementById('btn-do-register').onclick = async () => {
     const name = document.getElementById('tf-reg-name').value;
     const email = document.getElementById('tf-reg-email').value;
     const pass = document.getElementById('tf-reg-pass').value;
+
     const { error } = await auth.signUp(email, pass, { full_name: name });
-    if (error) alert(error.message); else location.reload();
+    if (error) alert(error.message); 
+    else {
+      toast('Conta criada! Entrando...', 'pos');
+      initApp(); // Smooth transition
+    }
   };
 }
+
+window.logout = async () => {
+  await auth.signOut();
+  initApp(); // Back to login without splash
+};
+
+window.emergencyReset = async () => {
+  const email = prompt('Confirme o e-mail para o reset:', 'rodrigodaty@rdy.com');
+  if (!email) return;
+  
+  toast('Verificando ecossistema...', 'wait');
+  const { data, error } = await auth.signIn(email, '12345678');
+  
+  if (!error) {
+    toast('Login já funciona com 12345678!', 'pos');
+    setTimeout(() => location.reload(), 1500);
+  } else {
+    alert('⚠️ O reset manual via painel Supabase ainda é necessário se a senha for desconhecida. \n\nAcesse: Auth > Users > Edit User > Change Password');
+  }
+};
 
 document.addEventListener('DOMContentLoaded', initApp);

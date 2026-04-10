@@ -143,10 +143,15 @@ export const store = {
 
     // Auto-Init missing profile
     if (!profile) {
-      const { data: nProf } = await supabase.from('profiles').upsert({ 
+      const { data: nProf, error: niPErr } = await supabase.from('profiles').upsert({ 
         id: user.id, 
-        full_name: user.user_metadata?.full_name || 'Trader Elite' 
+        name: user.user_metadata?.full_name || 'Trader Elite' 
       }).select().single();
+      
+      if (niPErr) {
+        alert('Erro ao criar perfil: ' + niPErr.message);
+        throw niPErr;
+      }
       state.profile = nProf;
     } else {
       state.profile = profile;
@@ -154,12 +159,17 @@ export const store = {
 
     // Auto-Init missing config
     if (!config) {
-      const { data: nConf } = await supabase.from('user_configs').upsert({ 
+      const { data: nConf, error: niCErr } = await supabase.from('user_configs').upsert({ 
         user_id: user.id,
         starting_capital: 0,
         monthly_goal: 0,
         contract_rule_value: 500
       }).select().single();
+
+      if (niCErr) {
+        alert('Erro ao criar config: ' + niCErr.message);
+        throw niCErr;
+      }
       state.config = nConf;
     } else {
       state.config = config;
