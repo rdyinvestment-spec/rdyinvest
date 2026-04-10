@@ -37,8 +37,6 @@ window.openDailyModal = (dateStr = today(), existing = null) => {
   document.getElementById('df-pts').value = day ? day.points : '';
   document.getElementById('df-trades').value = day ? day.trades_count : '';
   document.getElementById('df-contracts').value = day ? day.contracts_used : state.config.monthly_default || 1;
-  document.getElementById('df-wins').value = day ? day.wins : '';
-  document.getElementById('df-losses').value = day ? day.losses : '';
   document.getElementById('df-setup').value = day ? day.setup : '';
   document.getElementById('df-notes').value = day ? day.notes : '';
   
@@ -89,8 +87,8 @@ window.saveDaily = async () => {
     ending_balance: Number(document.getElementById('df-st').value) + plValue,
     trades_count: Number(document.getElementById('df-trades').value),
     contracts_used: contracts,
-    wins: Number(document.getElementById('df-wins').value),
-    losses: Number(document.getElementById('df-losses').value),
+    wins: plValue > 0 ? 1 : 0,
+    losses: plValue < 0 ? 1 : 0,
     setup: document.getElementById('df-setup').value,
     notes: document.getElementById('df-notes').value,
     followed_plan: document.getElementById('tog-plan').classList.contains('on'),

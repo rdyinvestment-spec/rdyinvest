@@ -233,6 +233,7 @@ textarea.fi { resize: none; }
 .fl { display: flex; flex-direction: column; gap: 5px; }
 .fl-lb { font-size: 10px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; }
 .fr { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fr-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
 /* ─── Buttons ─────────────────── */
 .btn {
