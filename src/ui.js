@@ -1,4 +1,4 @@
-import { state, CALC, monthCALC, rangeCALC } from './store';
+import { state, CALC, monthCALC, rangeCALC, loadAdminData, calcAdminStats } from './store';
 import { fR, fPct, cv, MS, MN, today, getDailyVerse } from './utils';
 import Chart from 'chart.js/auto';
 
@@ -43,6 +43,9 @@ export function renderPage(page, options = {}) {
       case 'reports':
         container.innerHTML = pgReports();
         mountReportsCharts();
+        break;
+      case 'admin':
+        container.innerHTML = pgAdmin();
         break;
       case 'settings':
         container.innerHTML = pgSettings();
@@ -813,6 +816,104 @@ function pgSettings() {
   `;
 }
 
+
+
+/* ─── Admin Portal ───────────────────── */
+function pgAdmin() {
+  const stats = calcAdminStats();
+  
+  return `
+    <div style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
+      <div style="margin-bottom: 40px">
+        <div style="font-size: 12px; font-weight: 700; color: var(--xp); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px">CENTRAL DE COMANDO ELITE</div>
+        <h1 style="font-size: 36px; font-weight: 900; letter-spacing: -2.5px">Portal <span style="color: var(--xp)">Administrativo</span></h1>
+      </div>
+
+      <!-- Bento Grid Admin -->
+      <div class="bento-grid" style="margin-bottom: 48px">
+        <!-- Main Stats -->
+        <div class="card pg-item-wide" style="display: flex; flex-direction: column; justify-content: space-between">
+           <div>
+              <div class="shdr-t">Patrimônio sob Gestão</div>
+              <div class="mono" style="font-size: clamp(32px, 5vw, 48px); font-weight: 900; margin-top: 12px">${fR(stats.managedCapital)}</div>
+           </div>
+           <div style="margin-top: 24px; display: flex; gap: 32px">
+              <div>
+                 <div class="st-lb">P&L Acumulado</div>
+                 <div class="mono ${cv(stats.totalPL)}" style="font-size: 20px; font-weight: 800">${fR(stats.totalPL)}</div>
+              </div>
+              <div>
+                 <div class="st-lb">Usuários Ativos</div>
+                 <div class="mono" style="font-size: 20px; font-weight: 800; color: var(--xp)">${stats.totalUsers}</div>
+              </div>
+           </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="card" style="padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid var(--xp-dim)">
+           <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--xp-dim); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; border: 1px solid var(--xp)">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--xp)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+           </div>
+           <div style="font-weight: 900; font-size: 18px">Segurança Ativa</div>
+           <div style="font-size: 12px; color: var(--text3); margin-top: 4px; text-align: center">Protocolo RDY Elite 2.0</div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card" style="padding: 24px">
+           <div class="shdr-t" style="margin-bottom: 16px">Configurações</div>
+           <div style="display: flex; flex-direction: column; gap: 8px">
+              <button class="btn btn-ghost" style="width: 100%; justify-content: start; font-size: 12px" onclick="toast('Em desenvolvimento...')">Gerenciar Usuários</button>
+              <button class="btn btn-ghost" style="width: 100%; justify-content: start; font-size: 12px" onclick="toast('Logs de Auditoria')">Ver Logs</button>
+           </div>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="card" style="padding: 32px">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px">
+           <h3 style="font-size: 22px; font-weight: 900; letter-spacing: -1px">Ranking de <span style="color: var(--xp)">Performance</span></h3>
+           <div style="font-size: 12px; font-weight: 700; color: var(--text3)">BASEADO EM ROI & CONSISTÊNCIA</div>
+        </div>
+        
+        <div style="overflow-x: auto">
+           <table class="f-table" style="width: 100%; border-collapse: separate; border-spacing: 0 12px">
+              <thead>
+                 <tr style="text-align: left; font-size: 11px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px">
+                    <th style="padding: 0 16px">Rank</th>
+                    <th style="padding: 0 16px">Trader</th>
+                    <th style="padding: 0 16px">Resultado Total</th>
+                    <th style="padding: 0 16px">Win Rate</th>
+                    <th style="padding: 0 16px">Operações</th>
+                 </tr>
+              </thead>
+              <tbody>
+                 ${stats.ranking.map((user, idx) => `
+                    <tr class="ranking-row" style="background: rgba(255,255,255,0.02); transition: transform 0.2s">
+                       <td style="padding: 16px; border-radius: 12px 0 0 12px">
+                          <div style="width: 32px; height: 32px; border-radius: 8px; background: ${idx === 0 ? 'var(--xp)' : (idx === 1 ? '#C0C0C0' : (idx === 2 ? '#CD7F32' : 'rgba(255,255,255,0.05)'))}; color: ${idx < 3 ? '#000' : '#FFF'}; display: flex; align-items: center; justify-content: center; font-weight: 900">
+                             ${idx + 1}
+                          </div>
+                       </td>
+                       <td style="padding: 16px; font-weight: 700; font-size: 15px">${user.name}</td>
+                       <td style="padding: 16px" class="mono ${cv(user.profit)}">${fR(user.profit)}</td>
+                       <td style="padding: 16px">
+                          <div style="display: flex; align-items: center; gap: 8px">
+                             <div style="width: 40px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px">
+                               <div style="width: ${user.wr}%; height: 100%; background: var(--xp); border-radius: 2px"></div>
+                             </div>
+                             <span class="mono" style="font-size: 14px; font-weight: 700">${user.wr.toFixed(1)}%</span>
+                          </div>
+                       </td>
+                       <td style="padding: 16px; border-radius: 0 12px 12px 0; color: var(--text3); font-weight: 600">${user.trades}</td>
+                    </tr>
+                 `).join('')}
+              </tbody>
+           </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
 function fDate(d) {
   if (!d) return '';

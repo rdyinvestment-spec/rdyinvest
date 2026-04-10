@@ -9,7 +9,13 @@ export const state = {
   trades: [],
   deposits: [],
   withdrawals: [],
-  initialized: false
+  initialized: false,
+  adminData: {
+    profiles: [],
+    days: [],
+    deposits: [],
+    withdrawals: []
+  }
 };
 
 export function calcStartingBalance(date) {
@@ -393,3 +399,58 @@ export const store = {
     return { data, error };
   }
 };
+// --- Admin Specific Logic ---
+export async function loadAdminData() {
+  if (!state.profile?.is_admin) throw new Error("Acesso negado");
+
+  const [resP, resD, resDep, resW] = await Promise.all([
+    supabase.from('profiles').select('*'),
+    supabase.from('trading_days').select('*'),
+    supabase.from('deposits').select('*'),
+    supabase.from('withdrawals').select('*')
+  ]);
+
+  state.adminData = {
+    profiles: resP.data || [],
+    days: resD.data || [],
+    deposits: resDep.data || [],
+    withdrawals: resW.data || []
+  };
+  return state.adminData;
+}
+
+export function calcAdminStats() {
+  const d = state.adminData;
+  const totalUsers = d.profiles.length;
+  
+  // Total Managed Capital
+  const totalDeps = d.deposits.reduce((a, b) => a + Number(b.amount), 0);
+  const totalWds = d.withdrawals.reduce((a, b) => a + Number(b.amount), 0);
+  const totalPL = d.days.reduce((a, b) => a + Number(b.profit_loss), 0);
+  const managedCapital = totalDeps - totalWds + totalPL;
+
+  // Ranking calculation
+  const ranking = d.profiles.map(p => {
+    const userDays = d.days.filter(dd => dd.user_id === p.id);
+    const userProfit = userDays.reduce((a, b) => a + Number(b.profit_loss), 0);
+    const wins = userDays.reduce((a, b) => a + (Number(b.wins) || 0), 0);
+    const losses = userDays.reduce((a, b) => a + (Number(b.losses) || 0), 0);
+    const totalTrades = wins + losses;
+    const wr = totalTrades ? (wins / totalTrades) * 100 : 0;
+
+    return {
+      id: p.id,
+      name: p.name || 'Trader Anônimo',
+      profit: userProfit,
+      wr: wr,
+      trades: totalTrades
+    };
+  }).sort((a, b) => b.profit - a.profit);
+
+  return {
+    totalUsers,
+    managedCapital,
+    totalPL,
+    ranking
+  };
+}

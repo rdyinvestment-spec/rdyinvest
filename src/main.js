@@ -6,13 +6,24 @@ import { today, fR, fDate } from './utils';
 import Chart from 'chart.js/auto';
 
 // Navigation Manager
-window.showPage = (page) => {
+window.showPage = async (page) => {
   // Always reset reports to current month on fresh navigation
   if (page === 'reports' && window.pgState) {
     window.pgState.repTab = 'custom';
     window.pgState.repM = new Date().getMonth();
     window.pgState.repY = new Date().getFullYear();
   }
+  
+  // Admin Data Loading
+  if (page === 'admin') {
+    try {
+      await loadAdminData();
+    } catch (e) {
+      toast('Acesso restrito ao Administrador', 'err');
+      return showPage('dashboard');
+    }
+  }
+
   renderPage(page);
   window.scrollTo(0, 0);
   document.querySelectorAll('.nav-i').forEach(el => {
@@ -573,6 +584,13 @@ async function initApp() {
       
       try {
         await store.loadAll();
+        
+        // Show Admin Nav if applicable
+        if (state.profile?.is_admin) {
+          const admNav = document.getElementById('nav-admin');
+          if (admNav) admNav.style.display = 'flex';
+        }
+
         window.showPage('dashboard');
         
         // Auto-open settings if new signup
