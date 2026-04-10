@@ -79,7 +79,6 @@ window.saveDaily = async () => {
   const plValue = Number(document.getElementById('df-pl-val').value);
   
   const entry = {
-    id: window.currentDayId,
     date: document.getElementById('df-date').value,
     points: pts,
     profit_loss: plValue,
@@ -96,6 +95,10 @@ window.saveDaily = async () => {
     revenge_trading: document.getElementById('tog-rev').classList.contains('on'),
     emotional_rating: window.starVal
   };
+
+  if (window.currentDayId) {
+    entry.id = window.currentDayId;
+  }
   
   const { error } = await store.saveDay(entry);
   if (error) toast('Erro ao salvar: ' + error.message, 'err');
