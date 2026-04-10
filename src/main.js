@@ -34,11 +34,6 @@ window.showPage = async (page, event) => {
 
   renderPage(page);
   
-  // Smooth scroll to top only if needed
-  if (window.scrollY > 100) {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
   document.querySelectorAll('.nav-i').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
   });

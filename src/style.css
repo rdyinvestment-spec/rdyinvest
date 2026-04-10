@@ -83,7 +83,6 @@ body {
   align-items: center;
 }
 .app-header-left { display: flex; align-items: center; }
-.app-header-right { display: flex; align-items: center; }
 .app-logo {
   font-family: 'Inter', sans-serif;
   font-size: clamp(18px, 5vw, 24px);
@@ -92,18 +91,38 @@ body {
   letter-spacing: -1.5px;
   cursor: pointer;
 }
-.app-logout {
+.app-header-right { 
+  display: flex; 
+  align-items: center; 
+  gap: clamp(8px, 2vw, 12px); 
+}
+.app-profile, .app-logout {
   display: flex; align-items: center; gap: 6px;
-  padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 16px);
+  padding: 6px 12px;
   border-radius: 12px;
-  background: var(--xp-dim);
-  border: 1px solid var(--xp);
-  color: white;
-  font-size: clamp(9px, 2vw, 11px);
+  font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s;
+}
+.app-profile {
+  background: var(--xp-dim);
+  border: 1px solid var(--xp);
+  color: var(--xp);
+}
+.app-profile:hover {
+  background: var(--xp);
+  color: #000;
+}
+.app-logout {
+  background: rgba(255, 82, 82, 0.08);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  color: var(--red);
+}
+.app-logout:hover {
+  background: var(--red);
+  color: white;
 }
 
 /* ─── Page Main ───────────────── */
