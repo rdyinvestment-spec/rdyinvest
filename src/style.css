@@ -128,12 +128,21 @@ body {
 .badge-pos { background: var(--green-dim); color: var(--green); }
 .badge-neg { background: var(--red-dim); color: var(--red); }
 .badge-xp  { background: var(--xp-dim); color: var(--xp); }
-.bdg { font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 600; letter-spacing: 0.5px; }
-.bdg-bl { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(62,139,255,0.2); }
-.bdg-gr { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,196,113,0.2); }
-.bdg-rd { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,64,64,0.2); }
-.bdg-gd { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(255,215,0,0.2); }
-.bdg-pu { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(139,92,246,0.2); }
+.bdg { 
+  font-size: 10px; padding: 5px 12px; border-radius: 100px; font-weight: 700; 
+  letter-spacing: 0.5px; text-transform: uppercase; transition: all 0.2s;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+}
+.bdg:hover { transform: translateY(-1px); }
+
+.bdg-bl { color: var(--blue); border-color: rgba(41, 121, 255, 0.3); }
+.bdg-bl:hover { background: var(--blue-dim); box-shadow: 0 0 10px rgba(41, 121, 255, 0.2); }
+
+.bdg-gr { color: var(--green); border-color: rgba(0, 230, 118, 0.3); }
+.bdg-gr:hover { background: var(--green-dim); box-shadow: 0 0 10px rgba(0, 230, 118, 0.2); }
+
+.bdg-rd { color: var(--red); border-color: rgba(255, 82, 82, 0.3); }
+.bdg-rd:hover { background: var(--red-dim); box-shadow: 0 0 10px rgba(255, 82, 82, 0.2); }
 
 /* ─── Navigation ──────────────── */
 .nav {

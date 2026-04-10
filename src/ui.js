@@ -562,7 +562,7 @@ function pgSettings() {
           <div class="shdr">
             <span class="shdr-t">Movimentações</span>
             <div style="display:flex; gap:8px">
-              <button class="bdg bdg-bl" onclick="openDepMo()" style="cursor:pointer">+ Aporte</button>
+              <button class="bdg bdg-gr" onclick="openDepMo()" style="cursor:pointer">+ Aporte</button>
               <button class="bdg bdg-rd" onclick="openWdMo()" style="cursor:pointer">- Resgate</button>
             </div>
           </div>
