@@ -3,11 +3,30 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+let supabase;
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase credentials missing. Check your .env file.');
+  console.warn('[RDY] Supabase credentials missing — running in offline mode. Create a .env file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+  // Mock client — all calls return a "not configured" error
+  const notConfigured = () => Promise.resolve({ data: null, error: { message: 'Supabase não configurado. Adicione as credenciais no arquivo .env.' } });
+  supabase = {
+    auth: {
+      getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+      signUp: notConfigured,
+      signInWithPassword: notConfigured,
+      signOut: notConfigured,
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+    },
+    from: () => ({
+      select: () => ({ eq: () => ({ single: notConfigured, order: notConfigured }), order: notConfigured }),
+      upsert: () => ({ select: notConfigured }),
+      delete: () => ({ eq: notConfigured })
+    })
+  };
+} else {
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export { supabase };
 
 /**
  * Authentication Helper

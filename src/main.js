@@ -343,18 +343,40 @@ window.changeRepMonth = (diff) => {
 
 /* ─── Auth & Init ────────────────────── */
 async function initApp() {
-  initChartDefaults();
+  try {
+    initChartDefaults();
+    
+    // Auto-fill remembered email
+    const remembered = localStorage.getItem('rdy_remembered_email');
+    if (remembered) {
+      const el = document.getElementById('tf-login-email');
+      const rem = document.getElementById('tf-login-rem');
+      if (el) el.value = remembered;
+      if (rem) rem.checked = true;
+    }
 
-  const user = await auth.getUser();
-  if (!user) {
+    // Show login immediately if we know it takes time
+    const user = await auth.getUser().catch(err => {
+      console.error('Auth error on init:', err);
+      return null;
+    });
+
+    if (!user) {
+      document.getElementById('screen-login').style.display = 'flex';
+      document.getElementById('screen-app').style.display = 'none';
+      initAuthFlow();
+    } else {
+      document.getElementById('screen-login').style.display = 'none';
+      document.getElementById('screen-app').style.display = 'block';
+      await store.loadAll();
+      window.showPage('dashboard');
+    }
+  } catch (err) {
+    console.error('CRITICAL INIT FAILURE:', err);
+    // Force show login as fallback so user isn't stuck
     document.getElementById('screen-login').style.display = 'flex';
     document.getElementById('screen-app').style.display = 'none';
     initAuthFlow();
-  } else {
-    document.getElementById('screen-login').style.display = 'none';
-    document.getElementById('screen-app').style.display = 'block';
-    await store.loadAll();
-    window.showPage('dashboard');
   }
 }
 
@@ -362,8 +384,22 @@ function initAuthFlow() {
   document.getElementById('btn-do-login').onclick = async () => {
     const email = document.getElementById('tf-login-email').value;
     const pass = document.getElementById('tf-login-pass').value;
+    const isRem = document.getElementById('tf-login-rem').checked;
+
+    if (!email || !pass) return toast('Preencha todos os campos', 'err');
+
     const { error } = await auth.signIn(email, pass);
-    if (error) alert(error.message); else location.reload();
+    if (error) {
+      if (error.message.includes('confirm')) {
+        alert('⚠️ ATENÇÃO: Verifique seu e-mail para confirmar o cadastro antes de logar.');
+      } else {
+        alert('❌ Erro: ' + error.message);
+      }
+    } else {
+      if (isRem) localStorage.setItem('rdy_remembered_email', email);
+      else localStorage.removeItem('rdy_remembered_email');
+      location.reload();
+    }
   };
   document.getElementById('btn-do-register').onclick = async () => {
     const name = document.getElementById('tf-reg-name').value;

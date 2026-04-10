@@ -126,23 +126,45 @@ export const store = {
     state.user = user;
 
     const [
-      { data: profile },
-      { data: config },
+      { data: profile, error: pErr },
+      { data: config, error: cErr },
       { data: days },
       { data: trades },
       { data: deposits },
       { data: withdrawals }
     ] = await Promise.all([
-      supabase.from('profiles').select('*').eq('id', user.id).single(),
-      supabase.from('user_configs').select('*').eq('user_id', user.id).single(),
+      supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
+      supabase.from('user_configs').select('*').eq('user_id', user.id).maybeSingle(),
       supabase.from('trading_days').select('*').eq('user_id', user.id).order('date', { ascending: true }),
       supabase.from('trades').select('*').eq('user_id', user.id).order('date', { ascending: true }),
       supabase.from('deposits').select('*').eq('user_id', user.id).order('date', { ascending: true }),
       supabase.from('withdrawals').select('*').eq('user_id', user.id).order('date', { ascending: true })
     ]);
 
-    state.profile = profile;
-    state.config = config || {};
+    // Auto-Init missing profile
+    if (!profile) {
+      const { data: nProf } = await supabase.from('profiles').upsert({ 
+        id: user.id, 
+        full_name: user.user_metadata?.full_name || 'Trader Elite' 
+      }).select().single();
+      state.profile = nProf;
+    } else {
+      state.profile = profile;
+    }
+
+    // Auto-Init missing config
+    if (!config) {
+      const { data: nConf } = await supabase.from('user_configs').upsert({ 
+        user_id: user.id,
+        starting_capital: 0,
+        monthly_goal: 0,
+        contract_rule_value: 500
+      }).select().single();
+      state.config = nConf;
+    } else {
+      state.config = config;
+    }
+
     state.days = days || [];
     state.trades = trades || [];
     state.deposits = deposits || [];

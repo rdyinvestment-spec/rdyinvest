@@ -14,8 +14,10 @@ export function renderPage(page, options = {}) {
     window.pgState = {
       dashFilter: 'total',
       repTab: 'monthly',
-      repM: today.getMonth(),
-      repY: today.getFullYear()
+      repM: new Date().getMonth(),
+      repY: new Date().getFullYear(),
+      calM: new Date().getMonth(),
+      calY: new Date().getFullYear()
     };
   }
 
