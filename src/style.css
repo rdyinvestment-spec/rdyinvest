@@ -287,15 +287,17 @@ textarea.fi { resize: none; }
   transition: opacity 0.2s;
 }
 .mo.open { opacity: 1; pointer-events: all; }
+.mo.mo-elite { align-items: center; justify-content: center; }
+
 /* Elite Modal 2.0 */
 .mo-elite .mo-content {
   border-radius: 24px;
   max-width: 900px;
-  margin: auto;
-  top: 50%; transform: translateY(-50%);
+  width: 90%;
   border: 1px solid rgba(255,255,255,0.15);
   padding: 0;
   overflow: hidden;
+  position: relative;
 }
 .mo-elite .mo-content::after { display: none; }
 
