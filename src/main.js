@@ -6,7 +6,15 @@ import { today, fR, fDate } from './utils';
 import Chart from 'chart.js/auto';
 
 // Navigation Manager
-window.showPage = async (page) => {
+window.showPage = async (page, event) => {
+  if (event) event.preventDefault();
+  
+  // Prevent redundant render if already on the same page
+  if (window.currentPage === page && page !== 'reports') {
+    return;
+  }
+  window.currentPage = page;
+
   // Always reset reports to current month on fresh navigation
   if (page === 'reports' && window.pgState) {
     window.pgState.repTab = 'custom';
@@ -25,7 +33,12 @@ window.showPage = async (page) => {
   }
 
   renderPage(page);
-  window.scrollTo(0, 0);
+  
+  // Smooth scroll to top only if needed
+  if (window.scrollY > 100) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   document.querySelectorAll('.nav-i').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
   });
@@ -356,6 +369,33 @@ window.resetEverything = async () => {
   }
 };
 
+window.openPasswordMo = () => {
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+  openMo('mo-password');
+};
+
+window.saveNewPassword = async () => {
+  const pass = document.getElementById('pw-new').value;
+  const conf = document.getElementById('pw-confirm').value;
+
+  if (!pass || pass.length < 6) {
+    return toast('A senha deve ter pelo menos 6 caracteres', 'err');
+  }
+  if (pass !== conf) {
+    return toast('As senhas não coincidem', 'err');
+  }
+
+  toast('Atualizando senha...', 'wait');
+  const { error } = await auth.updatePassword(pass);
+
+  if (error) {
+    toast('Erro: ' + error.message, 'err');
+  } else {
+    toast('Senha atualizada com sucesso!');
+    closeMo();
+  }
+};
 
 /* ─── Calculators ────────────────────── */
 window.calcProj = () => {

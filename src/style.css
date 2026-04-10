@@ -321,10 +321,13 @@ textarea.fi { resize: none; }
 
 /* ─── Page Transition ──────────── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0.8; transform: translate3d(0, 4px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
-.page-transition-enter { animation: fadeUp 0.25s var(--ease) both; }
+.page-transition-enter { 
+  animation: fadeUp 0.12s var(--ease) both; 
+  will-change: opacity, transform;
+}
 
 /* ─── Page Wrapper ─────────────── */
 .pg-inner { padding: 0 16px 120px; }

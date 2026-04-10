@@ -28,7 +28,7 @@ export function renderPage(page, options = {}) {
     window.activeCharts = {};
 
     container.classList.remove('page-transition-enter');
-    void container.offsetWidth;
+    void container.offsetHeight; // Force reflow
     container.classList.add('page-transition-enter');
 
     let content = '';
