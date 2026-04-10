@@ -776,11 +776,13 @@ textarea.fi { resize: none; }
     height: 190px !important;
   }
 
-  /* Form grids empilham no mobile */
-  .fr, .fr-3 { grid-template-columns: 1fr !important; }
+  /* Form grids: preservando 2 colunas para campos curtos */
+  .fr { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  .fr-3 { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  .fr-3 > :last-child { grid-column: span 2; } 
 
-  /* KPI grid: 2 colunas no mobile */
-  .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  /* KPI grid: 2 colunas balanceadas */
+  .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
 
   /* Evitar overflow de valores grandes */
   .mono, .st-val, .eq-val, .rpt-val {
@@ -799,15 +801,20 @@ textarea.fi { resize: none; }
   .dash-tabs { width: 100%; justify-content: flex-start !important; }
   .dash-date-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
 
-  /* Seção hero mais compacta */
-  .hero-section { padding: 32px 16px 20px !important; }
+  /* Redução de padding para ganhar espaço */
+  .mo-content { padding: 24px 16px !important; border-radius: 20px !important; width: 95% !important; max-width: 450px !important; }
+  .dash-content { padding: 12px !important; }
+  .pg-inner { padding: 0 8px 100px !important; }
+  .card { padding: 16px !important; }
 
-  /* Página principal */
-  .pg-inner { padding: 0 12px 120px !important; }
-  .pg-hd { flex-direction: column; align-items: center !important; gap: 12px; text-align: center; }
-
-  /* Dashboard content wrapper */
-  .dash-content { padding: 16px !important; }
+  /* Cabeçalhos mais compactos */
+  .pg-hd { flex-direction: column; align-items: center !important; gap: 10px; text-align: center; padding: 16px 0 !important; }
+  h1 { font-size: clamp(20px, 6vw, 26px) !important; }
+  .pg-t { font-size: 19px !important; }
+  
+  /* Indicators */
+  .indicator-val { font-size: clamp(18px, 5vw, 22px) !important; }
+  .card-indicator { min-height: 80px !important; }
 }
 
 .f-table-container { 
