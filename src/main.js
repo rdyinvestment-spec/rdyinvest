@@ -727,6 +727,32 @@ function initDailyCalc() {
   document.getElementById('df-losses-op').oninput = syncOps;
 }
 
+
+/* ─── Impersonation Support ──────────── */
+window.startImpersonation = async (userId) => {
+  try {
+    toast('Carregando visão do trader...', 'info');
+    await store.loadAll(userId);
+    window.showPage('dashboard');
+    toast('Modo Visualização Ativo', 'success');
+  } catch (e) {
+    console.error(e);
+    toast('Erro ao carregar usuário', 'err');
+  }
+};
+
+window.stopImpersonation = async () => {
+  try {
+    toast('Retornando ao Painel Admin...', 'info');
+    await store.loadAll();
+    window.showPage('admin');
+    toast('Visão restaurada', 'success');
+  } catch (e) {
+    console.error(e);
+    toast('Erro ao restaurar visão', 'err');
+  }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
   initDailyCalc();

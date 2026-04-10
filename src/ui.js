@@ -1,4 +1,4 @@
-import { state, CALC, monthCALC, rangeCALC, loadAdminData, calcAdminStats } from './store';
+import { state, CALC, monthCALC, rangeCALC, loadAdminData, calcAdminStats, calcGlobalFeed } from './store';
 import { fR, fPct, cv, MS, MN, today, getDailyVerse } from './utils';
 import Chart from 'chart.js/auto';
 
@@ -31,28 +31,38 @@ export function renderPage(page, options = {}) {
     void container.offsetWidth;
     container.classList.add('page-transition-enter');
 
+    let content = '';
     switch (page) {
       case 'dashboard':
-        container.innerHTML = pgDashboard();
-        mountDashboardCharts();
+        content = pgDashboard();
         break;
       case 'calendar':
-        container.innerHTML = pgCalendar();
-        mountCalendarCharts();
+        content = pgCalendar();
         break;
       case 'reports':
-        container.innerHTML = pgReports();
-        mountReportsCharts();
+        content = pgReports();
         break;
       case 'admin':
-        container.innerHTML = pgAdmin();
+        content = pgAdmin();
         break;
       case 'settings':
-        container.innerHTML = pgSettings();
+        content = pgSettings();
         break;
       default:
-        container.innerHTML = `<div style="padding:24px"><div class="card">Página em construção</div></div>`;
+        content = `<div style="padding:24px"><div class="card">Página em construção</div></div>`;
     }
+
+    // Wrap with Impersonation Banner if active
+    if (state.isViewing) {
+      content = pgImpersonationBanner() + content;
+    }
+
+    container.innerHTML = content;
+
+    // Mount charts after innerHTML is set
+    if (page === 'dashboard') mountDashboardCharts();
+    if (page === 'calendar') mountCalendarCharts();
+    if (page === 'reports') mountReportsCharts();
   } catch (err) {
     console.error('Render Error:', err);
     const container = document.getElementById('page-content');
@@ -79,8 +89,8 @@ function pgDashboard() {
 
   return `
     <!-- XP Hero Section -->
-    <div style="background: radial-gradient(circle at 70% 50%, rgba(255,209,0,0.05) 0%, transparent 60%); padding: 60px 24px 40px; border-bottom: 1px solid var(--border)">
-      <div style="max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center">
+    <div class="hero-section" style="background: radial-gradient(circle at 70% 50%, rgba(255,209,0,0.05) 0%, transparent 60%); padding: 60px 24px 40px; border-bottom: 1px solid var(--border)">
+      <div class="hero-grid" style="max-width: 1600px; margin: 0 auto">
         
         <!-- Left Column: Content -->
         <div style="max-width: 600px">
@@ -175,7 +185,7 @@ function pgDashboard() {
         </div>
 
         <!-- Curva de Capital -->
-        <div class="card card-lg" style="grid-column: span 2">
+        <div class="card card-lg pg-item-wide" style="grid-column: span 2">
           <div class="shdr">
             <span class="shdr-t">Curva de Capital</span>
             <div class="badge ${calcGrowth(state.days) >= 0 ? 'badge-pos' : 'badge-neg'}" style="border-radius:4px">${fPct(calcGrowth(state.days))}</div>
@@ -818,9 +828,23 @@ function pgSettings() {
 
 
 
-/* ─── Admin Portal ───────────────────── */
+/* ─── Admin Portal & Auditor ─────────── */
+function pgImpersonationBanner() {
+  const name = state.viewerProfile?.name || 'Usuário';
+  return `
+    <div style="background: var(--xp); color: #000; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13px; position: sticky; top: 0; z-index: 1001; box-shadow: 0 4px 20px rgba(0,0,0,0.5)">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        MODO DE VISUALIZAÇÃO: <span style="text-decoration: underline">${name.toUpperCase()}</span>
+      </div>
+      <button class="btn" style="background: #000; color: #FFF; font-size: 10px; padding: 6px 16px; height: auto" onclick="stopImpersonation()">SAIR DA VISUALIZAÇÃO</button>
+    </div>
+  `;
+}
+
 function pgAdmin() {
   const stats = calcAdminStats();
+  const feed = calcGlobalFeed();
   
   return `
     <div style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
@@ -831,7 +855,6 @@ function pgAdmin() {
 
       <!-- Bento Grid Admin -->
       <div class="bento-grid" style="margin-bottom: 48px">
-        <!-- Main Stats -->
         <div class="card pg-item-wide" style="display: flex; flex-direction: column; justify-content: space-between">
            <div>
               <div class="shdr-t">Patrimônio sob Gestão</div>
@@ -849,66 +872,91 @@ function pgAdmin() {
            </div>
         </div>
 
-        <!-- System Status -->
         <div class="card" style="padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid var(--xp-dim)">
            <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--xp-dim); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; border: 1px solid var(--xp)">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--xp)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
            </div>
            <div style="font-weight: 900; font-size: 18px">Segurança Ativa</div>
-           <div style="font-size: 12px; color: var(--text3); margin-top: 4px; text-align: center">Protocolo RDY Elite 2.0</div>
         </div>
 
-        <!-- Quick Actions -->
         <div class="card" style="padding: 24px">
            <div class="shdr-t" style="margin-bottom: 16px">Configurações</div>
            <div style="display: flex; flex-direction: column; gap: 8px">
               <button class="btn btn-ghost" style="width: 100%; justify-content: start; font-size: 12px" onclick="toast('Em desenvolvimento...')">Gerenciar Usuários</button>
-              <button class="btn btn-ghost" style="width: 100%; justify-content: start; font-size: 12px" onclick="toast('Logs de Auditoria')">Ver Logs</button>
            </div>
         </div>
       </div>
 
-      <!-- Leaderboard -->
-      <div class="card" style="padding: 32px">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px">
-           <h3 style="font-size: 22px; font-weight: 900; letter-spacing: -1px">Ranking de <span style="color: var(--xp)">Performance</span></h3>
-           <div style="font-size: 12px; font-weight: 700; color: var(--text3)">BASEADO EM ROI & CONSISTÊNCIA</div>
-        </div>
-        
-        <div style="overflow-x: auto">
-           <table class="f-table" style="width: 100%; border-collapse: separate; border-spacing: 0 12px">
-              <thead>
-                 <tr style="text-align: left; font-size: 11px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px">
-                    <th style="padding: 0 16px">Rank</th>
-                    <th style="padding: 0 16px">Trader</th>
-                    <th style="padding: 0 16px">Resultado Total</th>
-                    <th style="padding: 0 16px">Win Rate</th>
-                    <th style="padding: 0 16px">Operações</th>
-                 </tr>
-              </thead>
-              <tbody>
-                 ${stats.ranking.map((user, idx) => `
-                    <tr class="ranking-row" style="background: rgba(255,255,255,0.02); transition: transform 0.2s">
-                       <td style="padding: 16px; border-radius: 12px 0 0 12px">
-                          <div style="width: 32px; height: 32px; border-radius: 8px; background: ${idx === 0 ? 'var(--xp)' : (idx === 1 ? '#C0C0C0' : (idx === 2 ? '#CD7F32' : 'rgba(255,255,255,0.05)'))}; color: ${idx < 3 ? '#000' : '#FFF'}; display: flex; align-items: center; justify-content: center; font-weight: 900">
-                             ${idx + 1}
-                          </div>
-                       </td>
-                       <td style="padding: 16px; font-weight: 700; font-size: 15px">${user.name}</td>
-                       <td style="padding: 16px" class="mono ${cv(user.profit)}">${fR(user.profit)}</td>
-                       <td style="padding: 16px">
-                          <div style="display: flex; align-items: center; gap: 8px">
-                             <div style="width: 40px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px">
-                               <div style="width: ${user.wr}%; height: 100%; background: var(--xp); border-radius: 2px"></div>
-                             </div>
-                             <span class="mono" style="font-size: 14px; font-weight: 700">${user.wr.toFixed(1)}%</span>
-                          </div>
-                       </td>
-                       <td style="padding: 16px; border-radius: 0 12px 12px 0; color: var(--text3); font-weight: 600">${user.trades}</td>
+      <div class="admin-grid">
+        <!-- Leaderboard -->
+        <div class="card" style="padding: 32px">
+           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px">
+              <h3 style="font-size: 20px; font-weight: 900; letter-spacing: -1px">Ranking de <span style="color: var(--xp)">Traders</span></h3>
+           </div>
+           <div style="overflow-x: auto">
+              <table class="f-table" style="width: 100%; border-collapse: separate; border-spacing: 0 8px">
+                 <thead>
+                    <tr style="text-align: left; font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase;">
+                       <th>Rank</th>
+                       <th>Trader</th>
+                       <th>Resultado</th>
+                       <th>WR</th>
+                       <th style="text-align: right">Ações</th>
                     </tr>
-                 `).join('')}
-              </tbody>
-           </table>
+                 </thead>
+                 <tbody>
+                    ${stats.ranking.map((u, idx) => `
+                       <tr class="ranking-row" style="background: rgba(255,255,255,0.02)">
+                          <td style="padding: 12px; border-radius: 8px 0 0 8px">
+                             <div style="width: 28px; height: 28px; border-radius: 4px; background: ${idx === 0 ? 'var(--xp)' : 'rgba(255,255,255,0.05)'}; color: ${idx === 0 ? '#000' : '#FFF'}; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px">
+                                ${idx + 1}
+                             </div>
+                          </td>
+                          <td style="padding: 12px; font-weight: 700">${u.name}</td>
+                          <td style="padding: 12px" class="mono ${cv(u.profit)}">${fR(u.profit)}</td>
+                          <td style="padding: 12px" class="mono">${u.wr.toFixed(0)}%</td>
+                          <td style="padding: 12px; border-radius: 0 8px 8px 0; text-align: right">
+                             <button class="btn btn-ghost" style="padding: 6px; height: auto" onclick="startImpersonation('${u.id}')" title="Visualizar Dashboard">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                             </button>
+                          </td>
+                       </tr>
+                    `).join('')}
+                 </tbody>
+              </table>
+           </div>
+        </div>
+
+        <!-- Global Feed -->
+        <div class="card" style="padding: 32px">
+           <h3 style="font-size: 20px; font-weight: 900; letter-spacing: -1px; margin-bottom: 32px">Auditoria <span style="color: var(--xp)">Global</span></h3>
+           <div style="display: flex; flex-direction: column; gap: 16px">
+              ${feed.map(item => {
+                 const u = stats.ranking.find(x => x.id === item.user_id) || { name: 'Usuário' };
+                 let icon = '📈', label = 'Operação', color = 'var(--text)';
+                 if (item.type === 'DEP') { icon = '💰'; label = 'Aporte'; color = 'var(--green)'; }
+                 if (item.type === 'WTH') { icon = '💸'; label = 'Retirada'; color = 'var(--red)'; }
+                 
+                 const amt = item.type === 'OPER' ? (item.profit_loss) : (item.amount);
+
+                 return `
+                    <div style="display: flex; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.05)">
+                       <div style="font-size: 20px">${icon}</div>
+                       <div style="flex: 1">
+                          <div style="display: flex; justify-content: space-between; align-items: center">
+                             <div style="font-weight: 700; font-size: 14px">${u.name}</div>
+                             <div class="mono" style="font-size: 11px; color: var(--text3)">${fDate(item.date)}</div>
+                          </div>
+                          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px">
+                             <div style="font-size: 12px; color: var(--text3)">${label}</div>
+                             <div class="mono ${cv(amt)}" style="font-weight: 800; font-size: 13px">${fR(amt)}</div>
+                          </div>
+                       </div>
+                    </div>
+                 `;
+              }).join('')}
+              ${feed.length === 0 ? '<div style="color: var(--text3); text-align: center; padding: 20px">Nenhuma atividade recente</div>' : ''}
+           </div>
         </div>
       </div>
     </div>

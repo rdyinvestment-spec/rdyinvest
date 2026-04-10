@@ -628,3 +628,70 @@ textarea.fi { resize: none; }
   background: radial-gradient(circle at center, rgba(255,209,0,0.05) 0%, transparent 70%);
   pointer-events: none;
 }
+
+/* ─── Impersonation Read-Only ─────── */
+.is-view-mode .fab,
+.is-view-mode #btn-save-day,
+.is-view-mode .mo-elite .btn-xp:not(.impersonation-btn) {
+  opacity: 0.3 !important;
+  pointer-events: none !important;
+  filter: grayscale(1);
+}
+
+.is-view-mode #mo-mov .btn-ghost {
+  display: none !important;
+}
+
+/* ─── Mobile Adjustments ─────────── */
+@media (max-width: 768px) {
+  .bento-grid { 
+    grid-template-columns: 1fr !important; 
+    gap: 16px !important; 
+  }
+  .pg-item-wide { grid-column: span 1 !important; }
+  
+  .card { padding: 18px !important; }
+  .shdr { gap: 8px; align-items: flex-start; }
+  
+  .admin-grid { 
+    grid-template-columns: 1fr !important; 
+    gap: 20px !important; 
+  }
+  
+  h1 { font-size: 26px !important; }
+  .mono { font-size: 22px !important; }
+  
+  /* Prevent table breaks */
+  .f-table { font-size: 13px; }
+  .f-table th, .f-table td { padding: 8px !important; }
+  
+  /* Adjust 3D Card for mobile */
+  .card-3d { 
+    width: 320px !important; 
+    height: 180px !important; 
+  }
+}
+
+.f-table-container { 
+  overflow-x: auto; 
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .hero-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .hero-section { padding: 40px 20px 20px !important; }
+}

@@ -10,6 +10,8 @@ export const state = {
   deposits: [],
   withdrawals: [],
   initialized: false,
+  isViewing: false, // True if admin is viewing someone else
+  viewerProfile: null, // Stores the profile of the user being viewed
   adminData: {
     profiles: [],
     days: [],
@@ -199,20 +201,23 @@ export function rangeCALC(start, end) {
 }
 
 export const store = {
-  async loadAll() {
+  async loadAll(targetUserId = null) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     state.user = user;
 
+    const actualUid = targetUserId || user.id;
+    state.isViewing = !!targetUserId;
+
     const [
       resP, resC, resD, resT, resDep, resW
     ] = await Promise.all([
-      supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-      supabase.from('user_configs').select('*').eq('user_id', user.id).maybeSingle(),
-      supabase.from('trading_days').select('*').eq('user_id', user.id).order('date', { ascending: true }),
-      supabase.from('trades').select('*').eq('user_id', user.id).order('date', { ascending: true }),
-      supabase.from('deposits').select('*').eq('user_id', user.id).order('date', { ascending: true }),
-      supabase.from('withdrawals').select('*').eq('user_id', user.id).order('date', { ascending: true })
+      supabase.from('profiles').select('*').eq('id', actualUid).maybeSingle(),
+      supabase.from('user_configs').select('*').eq('user_id', actualUid).maybeSingle(),
+      supabase.from('trading_days').select('*').eq('user_id', actualUid).order('date', { ascending: true }),
+      supabase.from('trades').select('*').eq('user_id', actualUid).order('date', { ascending: true }),
+      supabase.from('deposits').select('*').eq('user_id', actualUid).order('date', { ascending: true }),
+      supabase.from('withdrawals').select('*').eq('user_id', actualUid).order('date', { ascending: true })
     ]);
 
     if (resP.error) console.error('Error Profile:', resP.error);
@@ -243,6 +248,15 @@ export const store = {
       state.profile = nProf;
     } else {
       state.profile = profile;
+    }
+
+    // If we're an admin loading ourselves, ensure profile is cached correctly
+    // If we're loading someone else, store it in viewerProfile
+    if (state.isViewing) {
+      state.viewerProfile = profile;
+      document.body.classList.add('is-view-mode');
+    } else {
+      document.body.classList.remove('is-view-mode');
     }
 
     // Auto-Init missing config
@@ -289,6 +303,7 @@ export const store = {
   },
 
   async saveTrade(trade) {
+    if (state.isViewing) return { error: 'Modo Somente Leitura' };
     const user = state.user;
     if (!user) return { error: 'No user' };
     const { data, error } = await supabase.from('trades').upsert({ ...trade, user_id: user.id }).select();
@@ -307,6 +322,7 @@ export const store = {
   },
 
   async saveDeposit(dep) {
+    if (state.isViewing) return { error: 'Modo Somente Leitura' };
     const user = state.user;
     if (!user) return { error: 'No user' };
     const { data, error } = await supabase.from('deposits').upsert({ ...dep, user_id: user.id }).select();
@@ -325,6 +341,7 @@ export const store = {
   },
 
   async saveWithdrawal(wd) {
+    if (state.isViewing) return { error: 'Modo Somente Leitura' };
     const user = state.user;
     if (!user) return { error: 'No user' };
     const { data, error } = await supabase.from('withdrawals').upsert({ ...wd, user_id: user.id }).select();
@@ -453,4 +470,20 @@ export function calcAdminStats() {
     totalPL,
     ranking
   };
+}
+
+export function calcGlobalFeed() {
+  const d = state.adminData;
+  const feed = [
+    ...d.days.map(x => ({ ...x, type: 'OPER' })),
+    ...d.deposits.map(x => ({ ...x, type: 'DEP' })),
+    ...d.withdrawals.map(x => ({ ...x, type: 'WTH' }))
+  ];
+
+  // Sort by date then created_at
+  return feed.sort((a, b) => {
+    const dA = new Date(a.created_at || a.date);
+    const dB = new Date(b.created_at || b.date);
+    return dB - dA;
+  }).slice(0, 20); // Top 20 recent
 }
