@@ -291,6 +291,10 @@ textarea.fi { resize: none; }
 
 /* Elite Modal 2.0 */
 .mo-elite .mo-content {
+  background: #0a0a0a; /* Solid base to prevent transparency leaks */
+  background-image: var(--bg-card);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   border-radius: 24px;
   max-width: 900px;
   width: 90%;
