@@ -714,9 +714,14 @@ textarea.fi { resize: none; }
     min-width: 0;
   }
 
-  /* Tabs no mobile: wrap e tamanho menor */
-  .tabs { flex-wrap: wrap; gap: 6px; }
-  .tab { padding: 6px 14px; font-size: 10px; }
+  /* Tabs no mobile: scroll horizontal, não wrap */
+  .tabs { flex-wrap: nowrap; gap: 6px; overflow-x: auto; }
+  .tab { padding: 6px 14px; font-size: 10px; flex-shrink: 0; }
+
+  /* Filter row do dashboard */
+  .dash-filter-row { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+  .dash-tabs { width: 100%; justify-content: flex-start !important; }
+  .dash-date-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
 
   /* Seção hero mais compacta */
   .hero-section { padding: 32px 16px 20px !important; }

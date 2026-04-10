@@ -134,8 +134,8 @@ function pgDashboard() {
           <div style="font-size: 11px; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px">${dateStr}</div>
           <h2 style="font-size: 22px; font-weight: 800; letter-spacing: -1px">Resumo do <span style="color: var(--xp)">Dashboard</span></h2>
         </div>
-        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 12px; min-width: 100%">
-          <div class="tabs" style="margin-bottom:0; width: 100%; justify-content: flex-end">
+        <div class="dash-filter-row">
+          <div class="tabs dash-tabs" style="margin-bottom:0">
             ${['today', 'week', 'month', 'total', 'custom'].map(f => `
               <div class="tab ${window.pgState.dashFilter === f ? 'on' : ''}" onclick="setDashFilter('${f}')">
                 ${f === 'today' ? 'Hoje' : f === 'week' ? 'Semana' : f === 'month' ? 'Mês' : f === 'total' ? 'Geral' : 'Gerenciar'}
@@ -143,11 +143,11 @@ function pgDashboard() {
             `).join('')}
           </div>
           ${window.pgState.dashFilter === 'custom' ? `
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end">
-              <input type="date" id="dash-from" class="fi" style="padding: 8px 12px; font-size: 12px; width: 130px" value="${window.pgState.customFrom || ''}" onchange="window.pgState.customFrom=this.value">
-              <span style="font-size: 11px; color: var(--text3); font-weight: 700">até</span>
-              <input type="date" id="dash-to" class="fi" style="padding: 8px 12px; font-size: 12px; width: 130px" value="${window.pgState.customTo || ''}" onchange="window.pgState.customTo=this.value">
-              <button class="btn btn-xp" onclick="applyCustomRange()" style="padding: 8px 16px; font-size: 12px; height: auto">Filtrar</button>
+            <div class="dash-date-row">
+              <input type="date" id="dash-from" class="fi" style="padding: 8px 12px; font-size: 12px; flex: 1; min-width: 120px" value="${window.pgState.customFrom || ''}" onchange="window.pgState.customFrom=this.value">
+              <span style="font-size: 11px; color: var(--text3); font-weight: 700; white-space: nowrap">até</span>
+              <input type="date" id="dash-to" class="fi" style="padding: 8px 12px; font-size: 12px; flex: 1; min-width: 120px" value="${window.pgState.customTo || ''}" onchange="window.pgState.customTo=this.value">
+              <button class="btn btn-xp" onclick="applyCustomRange()" style="padding: 8px 16px; font-size: 12px; height: auto; white-space: nowrap">Filtrar</button>
             </div>
           ` : ''}
         </div>
@@ -454,12 +454,17 @@ function pgCalendar() {
     const type = entry ? (entry.profit_loss > 0 ? 'pos' : (entry.profit_loss < 0 ? 'neg' : 'neu')) : '';
     const pct = entry ? (entry.profit_loss / (entry.starting_balance || 1)) * 100 : 0;
     
+    const pl = entry ? Number(entry.profit_loss) : 0;
+    const plShort = Math.abs(pl) >= 1000
+      ? (pl >= 0 ? '+' : '') + (pl / 1000).toFixed(1) + 'k'
+      : (pl >= 0 ? '+' : '') + pl.toFixed(0);
+
     html += `
       <div class="cd ${type} ${isToday ? 'tod' : ''}" onclick="calClick('${dStr}')">
         <span class="cd-n">${d}</span>
         ${entry ? `
-          <span class="cd-v">${fR(entry.profit_loss)}</span>
-          <div style="font-size: 8px; font-weight: 800; opacity: 0.7; margin-top: 2px">${pct > 0 ? '+' : ''}${pct.toFixed(2)}%</div>
+          <span class="cd-v">${plShort}</span>
+          <div class="cd-pct">${pct > 0 ? '+' : ''}${pct.toFixed(1)}%</div>
         ` : ''}
         ${isToday ? `<div class="cd-dot"></div>` : ''}
       </div>
@@ -791,6 +796,7 @@ function pgSettings() {
             <span class="ss-lb">Risco por Trade</span>
             <span class="ss-vl">${state.config.risk_percent || 0}%</span>
           </div>
+          <button class="btn btn-ghost" style="width:100%; margin-top:20px; font-size:11px; font-weight:700" onclick="event.stopPropagation(); openPasswordMo()">🔒 TROCAR MINHA SENHA</button>
         </div>
 
         <!-- Wallet Card -->
