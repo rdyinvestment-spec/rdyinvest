@@ -91,13 +91,12 @@ function pgDashboard() {
     <!-- XP Hero Section -->
     <div class="hero-section" style="background: radial-gradient(circle at 70% 50%, rgba(255,209,0,0.05) 0%, transparent 60%); padding: 60px 24px 40px; border-bottom: 1px solid var(--border)">
       <div class="hero-grid" style="max-width: 1600px; margin: 0 auto">
-        
+
         <!-- Left Column: Content -->
-        <div style="max-width: 600px">
-          <div style="font-size: 14px; font-weight: 700; color: var(--xp); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 24px">RDY ELITE EXPERIENCE</div>
-          <h1 style="font-size: clamp(32px, 5vw, 56px); font-weight: 900; line-height: 1.1; letter-spacing: -2px; margin-bottom: 24px">RDY Investment <span style="color: var(--xp)">Performance</span></h1>
-          <p id="daily-verse" style="font-size: 16px; color: var(--text2); margin-bottom: 32px; max-width: 520px; font-style: italic; border-left: 3px solid var(--xp); padding-left: 16px; line-height: 1.6">${getDailyVerse()}</p>
-          
+        <div style="min-width: 0; width: 100%">
+          <div class="hero-label">RDY ELITE EXPERIENCE</div>
+          <h1 class="hero-title">RDY Investment <span style="color: var(--xp)">Performance</span></h1>
+          <p id="daily-verse" class="hero-verse">${getDailyVerse()}</p>
         </div>
 
         <!-- Right Column: Card Visual -->
