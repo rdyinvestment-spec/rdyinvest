@@ -126,12 +126,7 @@ export const store = {
     state.user = user;
 
     const [
-      { data: profile, error: pErr },
-      { data: config, error: cErr },
-      { data: days },
-      { data: trades },
-      { data: deposits },
-      { data: withdrawals }
+      resP, resC, resD, resT, resDep, resW
     ] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
       supabase.from('user_configs').select('*').eq('user_id', user.id).maybeSingle(),
@@ -140,6 +135,20 @@ export const store = {
       supabase.from('deposits').select('*').eq('user_id', user.id).order('date', { ascending: true }),
       supabase.from('withdrawals').select('*').eq('user_id', user.id).order('date', { ascending: true })
     ]);
+
+    if (resP.error) console.error('Error Profile:', resP.error);
+    if (resC.error) console.error('Error Config:', resC.error);
+    if (resD.error) console.error('Error Days:', resD.error);
+    if (resT.error) console.error('Error Trades:', resT.error);
+    if (resDep.error) console.error('Error Deposits:', resDep.error);
+    if (resW.error) console.error('Error Withdrawals:', resW.error);
+
+    const profile = resP.data;
+    const config = resC.data;
+    const days = resD.data;
+    const trades = resT.data;
+    const deposits = resDep.data;
+    const withdrawals = resW.data;
 
     // Auto-Init missing profile
     if (!profile) {
