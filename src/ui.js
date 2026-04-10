@@ -62,7 +62,7 @@ function pgDashboard() {
   return `
     <!-- XP Hero Section -->
     <div style="background: radial-gradient(circle at 70% 50%, rgba(255,209,0,0.05) 0%, transparent 60%); padding: 60px 24px 40px; border-bottom: 1px solid var(--border)">
-      <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center">
+      <div style="max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center">
         
         <!-- Left Column: Content -->
         <div style="max-width: 600px">
@@ -91,7 +91,7 @@ function pgDashboard() {
     </div>
 
     <!-- Dashboard Content -->
-    <div style="max-width: 1200px; margin: 0 auto; padding: 40px 24px">
+    <div style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
       
       <div style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-end">
         <div>
@@ -255,7 +255,7 @@ function pgCalendar() {
   const prevDays = new Date(year, month, 0).getDate();
   
   let html = `
-    <div style="max-width: 1200px; margin: 0 auto; padding: 40px 24px">
+    <div style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
       
       <!-- Calendar Header -->
       <div class="cal-hdr" style="margin-bottom: 32px">
@@ -394,7 +394,7 @@ function pgReports() {
   const c = CALC();
 
   let html = `
-    <div style="max-width: 1200px; margin: 0 auto; padding: 40px 24px">
+    <div style="max-width: 1600px; margin: 0 auto; padding: 40px 24px">
       
       <div style="margin-bottom: 32px">
         <h2 style="font-size: 28px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 20px">Relatórios & <span style="color: var(--xp)">Insights</span></h2>
