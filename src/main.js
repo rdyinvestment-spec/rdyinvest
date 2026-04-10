@@ -135,6 +135,15 @@ function setTog(id, val) {
 }
 window.toggleTog = (id) => document.getElementById(id)?.classList.toggle('on');
 
+// Debug/Dev Shortcut to access Admin Portal
+window.toggleAdmin = () => {
+  const admNav = document.getElementById('nav-admin');
+  if (admNav) {
+    admNav.style.display = admNav.style.display === 'none' ? 'flex' : 'none';
+    toast('Modo Admin Alternado', 'xp');
+  }
+};
+
 
 
 window.saveDaily = async () => {
@@ -155,6 +164,12 @@ window.saveDaily = async () => {
     overtrade: document.getElementById('tog-over').classList.contains('on'),
     revenge_trading: document.getElementById('tog-rev').classList.contains('on')
   };
+
+  // Auto-Merge: Se não temos ID, mas já existe um registro para esta data, usamos o ID dele para fazer UPDATE.
+  if (!window.currentDayId) {
+    const existing = state.days.find(d => d.date === entry.date);
+    if (existing) window.currentDayId = existing.id;
+  }
 
   if (window.currentDayId) {
     entry.id = window.currentDayId;
@@ -177,16 +192,24 @@ window.deleteDay = async () => {
 };
 
 /* ─── Wallet Operations ──────────────── */
-window.openDepMo = () => { document.getElementById('dep-date').value = today(); openMo('mo-dep'); };
+window.openDepMo = () => { 
+  window.currentDepId = null; 
+  document.getElementById('dep-date').value = today(); 
+  document.getElementById('dep-amt').value = '';
+  document.getElementById('dep-desc').value = '';
+  openMo('mo-dep'); 
+};
 window.saveDeposit = async () => {
   const dep = {
     date: document.getElementById('dep-date').value,
     amount: Number(document.getElementById('dep-amt').value),
     description: document.getElementById('dep-desc').value
   };
+  if (window.currentDepId) dep.id = window.currentDepId;
+
    const { error } = await store.saveDeposit(dep);
   if (!error) { 
-    toast('Aporte realizado'); 
+    toast(window.currentDepId ? 'Aporte atualizado' : 'Aporte realizado'); 
     closeMo(); 
     initApp();
   }
@@ -198,16 +221,24 @@ window.delDeposit = async (id) => {
   }
 };
 
-window.openWdMo = () => { document.getElementById('wd-date').value = today(); openMo('mo-wd'); };
+window.openWdMo = () => { 
+  window.currentWthId = null; 
+  document.getElementById('wd-date').value = today(); 
+  document.getElementById('wd-amt').value = '';
+  document.getElementById('wd-desc').value = '';
+  openMo('mo-wd'); 
+};
 window.saveWithdrawal = async () => {
   const wd = {
     date: document.getElementById('wd-date').value,
     amount: Number(document.getElementById('wd-amt').value),
     description: document.getElementById('wd-desc').value
   };
+  if (window.currentWthId) wd.id = window.currentWthId;
+
    const { error } = await store.saveWithdrawal(wd);
   if (!error) { 
-    toast('Resgate realizado'); 
+    toast(window.currentWthId ? 'Resgate atualizado' : 'Resgate realizado'); 
     closeMo(); 
     initApp();
   }
@@ -225,6 +256,7 @@ window.editMov = (type, id) => {
   if (type === 'DEP') {
     const d = state.deposits.find(x => x.id === id);
     if (!d) return;
+    window.currentDepId = id;
     document.getElementById('dep-date').value = d.date;
     document.getElementById('dep-amt').value = d.amount;
     document.getElementById('dep-desc').value = d.description || '';
@@ -232,6 +264,7 @@ window.editMov = (type, id) => {
   } else {
     const w = state.withdrawals.find(x => x.id === id);
     if (!w) return;
+    window.currentWthId = id;
     document.getElementById('wd-date').value = w.date;
     document.getElementById('wd-amt').value = w.amount;
     document.getElementById('wd-desc').value = w.description || '';
