@@ -259,7 +259,13 @@
       const splashTimeout = setTimeout(() => {
         if (splash) {
           splash.style.opacity = '0';
-          setTimeout(() => splash.remove(), 800);
+          setTimeout(() => {
+            splash.remove();
+            // Final safety: if no screen is visible, force login
+            if (document.getElementById('screen-app').style.display === 'none') {
+               document.getElementById('screen-login').style.display = 'flex';
+            }
+          }, 800);
         }
       }, 5000);
 

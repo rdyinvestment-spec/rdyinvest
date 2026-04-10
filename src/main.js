@@ -356,10 +356,14 @@ async function initApp() {
     }
 
     // Show login immediately if we know it takes time
-    const user = await auth.getUser().catch(err => {
-      console.error('Auth error on init:', err);
-      return null;
-    });
+    // Attempt to get user (with a small retry if we just signed up)
+    let user = await auth.getUser().catch(() => null);
+    
+    // Retry once after 500ms if no user found but we think they just signed up
+    if (!user && window.isNewSignup) {
+      await new Promise(r => setTimeout(r, 800));
+      user = await auth.getUser().catch(() => null);
+    }
 
     if (!user) {
       document.getElementById('screen-login').style.display = 'flex';
@@ -372,6 +376,15 @@ async function initApp() {
       try {
         await store.loadAll();
         window.showPage('dashboard');
+        
+        // Auto-open settings if new signup
+        if (window.isNewSignup) {
+          setTimeout(() => {
+            window.openMo('mo-settings');
+            toast('Bem-vindo! Configure seu capital inicial.', 'pos');
+            window.isNewSignup = false; // Reset
+          }, 600);
+        }
       } catch (loadErr) {
         alert('❌ Falha ao carregar seus dados: ' + loadErr.message);
         console.error(loadErr);
@@ -412,11 +425,28 @@ function initAuthFlow() {
     const email = document.getElementById('tf-reg-email').value;
     const pass = document.getElementById('tf-reg-pass').value;
 
-    const { error } = await auth.signUp(email, pass, { full_name: name });
-    if (error) alert(error.message); 
-    else {
-      toast('Conta criada! Entrando...', 'pos');
-      initApp(); // Smooth transition
+    const { data, error } = await auth.signUp(email, pass, { full_name: name });
+    
+    if (error) {
+      if (error.message.includes('already registered')) {
+        alert('⚠️ Este e-mail já está cadastrado. Tente fazer o login ou mude o e-mail.');
+      } else {
+        alert('❌ Erro no cadastro: ' + error.message);
+      }
+      return;
+    }
+
+    // Success check
+    if (data.user) {
+      if (!data.session) {
+        // Account exists but no session = Email Confirmation likely active
+        alert('✅ Conta criada! Verifique sua caixa de entrada para confirmar seu e-mail e ativar seu acesso.');
+        location.reload(); // Refresh to login page
+      } else {
+        toast('Conta criada com sucesso!', 'pos');
+        window.isNewSignup = true; 
+        initApp(); 
+      }
     }
   };
 }
