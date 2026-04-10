@@ -477,31 +477,34 @@ function pgCalendar() {
 
         <!-- Stats Sidebar -->
         <div style="display: flex; flex-direction: column; gap: 16px">
-          <div class="card" style="padding: 24px">
-            <div class="shdr-t" style="margin-bottom: 20px">Performance Mensal</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
-              <div>
-                <div class="st-lb">P&L Líquido</div>
-                <div class="mono ${cv(mc.pl)}" style="font-size: 20px; font-weight: 800">${fR(mc.pl)}</div>
+          ${(() => {
+            const totalContracts = mc.days.reduce((a, d) => a + Number(d.contracts_used || 0), 0);
+            const grossWins  = mc.days.filter(d => Number(d.profit_loss) > 0).reduce((a, d) => a + Number(d.profit_loss), 0);
+            const grossLosses = mc.days.filter(d => Number(d.profit_loss) < 0).reduce((a, d) => a + Math.abs(Number(d.profit_loss)), 0);
+            const st = (label, val, color) => `
+              <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px">
+                <div class="st-lb" style="margin-bottom: 5px">${label}</div>
+                <div class="mono" style="font-size: 17px; font-weight: 800; color: ${color}">${val}</div>
+              </div>`;
+            return `
+            <div class="card" style="padding: 20px">
+              <div class="shdr-t" style="margin-bottom: 16px">Performance Mensal</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+                ${st('Pts Ganhos', mc.tWins, 'var(--green)')}
+                ${st('Pts Perdidos', mc.tLosses, 'var(--red)')}
+                ${st('Dias +', mc.posD, 'var(--green)')}
+                ${st('Dias −', mc.negD, 'var(--red)')}
+                ${st('Contratos', totalContracts, 'var(--xp)')}
+                ${st('Win Rate', fPct(mc.wr), 'var(--xp)')}
+                ${st('Ganhos', fR(grossWins), 'var(--green)')}
+                ${st('Perdas', '-' + fR(grossLosses), 'var(--red)')}
               </div>
-              <div>
-                <div class="st-lb">Win Rate</div>
-                <div class="mono" style="font-size: 20px; font-weight: 800; color: var(--xp)">${fPct(mc.wr)}</div>
+              <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center">
+                <span style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px">Líquido do Mês</span>
+                <span class="mono ${cv(mc.pl)}" style="font-size: 20px; font-weight: 900">${fR(mc.pl)}</span>
               </div>
-              <div>
-                <div class="st-lb">Dias Positivos</div>
-                <div class="mono pos" style="font-size: 16px; font-weight: 700">${mc.posD}</div>
-              </div>
-              <div>
-                <div class="st-lb">Dias Negativos</div>
-                <div class="mono neg" style="font-size: 16px; font-weight: 700">${mc.negD}</div>
-              </div>
-            </div>
-            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border)">
-               <div class="st-lb">Média Diária</div>
-               <div class="mono" style="font-size: 16px; font-weight: 700">${fR(mc.avgDay)}</div>
-            </div>
-          </div>
+            </div>`;
+          })()}
           
           <div class="card" style="padding: 24px; min-height: 200px">
             <div class="shdr-t" style="margin-bottom: 16px">Evolução no Mês</div>
