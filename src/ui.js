@@ -80,7 +80,7 @@ function pgDashboard() {
         <div class="hero-visual" style="display: flex; justify-content: center">
           <div onclick="showPage('settings')" style="width: 100%; max-width: 400px; height: 220px; background: linear-gradient(135deg, #111, #000); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; position: relative; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.8); cursor: pointer">
             <div style="position: absolute; top: 32px; left: 32px; font-size: 24px; font-weight: 900; color: #FFD100; letter-spacing: -1px">RDY</div>
-            <div style="position: absolute; bottom: 32px; left: 32px; font-size: 14px; font-weight: 700; color: #FFF; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px">${state.profile?.name || 'Membro Elite'}</div>
+            <div style="position: absolute; bottom: 32px; left: 32px; font-size: 14px; font-weight: 700; color: #FFF; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px">${state.profile?.card_name || state.profile?.name || 'Membro Elite'}</div>
             <div style="position: absolute; top: 32px; right: 32px; width: 48px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 4px; display: flex; align-items: center; justify-content: center">
               <div style="width: 24px; height: 16px; background: #FFD100; border-radius: 2px; opacity: 0.8"></div>
             </div>

@@ -153,7 +153,8 @@ window.delWithdrawal = async (id) => {
 /* ─── Settings ───────────────────────── */
 window.openSettingsMo = () => {
   const cfg = state.config || {};
-  document.getElementById('cfg-name').value = state.profile?.full_name || '';
+  document.getElementById('cfg-name').value = state.profile?.name || '';
+  document.getElementById('cfg-card-name').value = state.profile?.card_name || '';
   document.getElementById('cfg-cap').value = cfg.starting_capital || 0;
   document.getElementById('cfg-goal').value = cfg.monthly_goal || 0;
   document.getElementById('cfg-rule').value = cfg.contract_rule_value || 500;
@@ -162,6 +163,7 @@ window.openSettingsMo = () => {
 
 window.saveSettings = async () => {
   const name = document.getElementById('cfg-name').value;
+  const cardName = document.getElementById('cfg-card-name').value;
   const cfg = {
     starting_capital: Number(document.getElementById('cfg-cap').value),
     monthly_goal: Number(document.getElementById('cfg-goal').value),
@@ -169,16 +171,18 @@ window.saveSettings = async () => {
   };
   
   const [res1, res2] = await Promise.all([
-    store.saveProfile({ full_name: name }),
+    store.saveProfile({ name, card_name: cardName }),
     store.saveConfig(cfg)
   ]);
   
   if (!res1.error && !res2.error) { 
     toast('Configurações salvas'); 
     closeMo(); 
-    showPage('settings'); 
+    showPage('dashboard'); // Refresh to show new card name
   } else {
     toast('Erro ao salvar algumas configurações', 'err');
+    console.error('Save Profiles Error:', res1.error);
+    console.error('Save Config Error:', res2.error);
   }
 };
 
