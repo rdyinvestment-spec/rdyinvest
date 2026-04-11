@@ -261,6 +261,11 @@ function pgDashboard() {
                 </div>
               `).join('');
             })()}
+            ${state.days.length > 3 ? `
+              <button class="btn btn-ghost" style="width: 100%; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--text3)" onclick="showPage('calendar')">
+                VER HISTÓRICO COMPLETO ➔
+              </button>
+            ` : ''}
           </div>
         </div>
 
