@@ -201,6 +201,7 @@ export function rangeCALC(start, end) {
 }
 
 export const store = {
+  async init() { return this.loadAll(); },
   async loadAll(targetUserId = null) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -407,12 +408,55 @@ export const store = {
 
     return { success: true };
   },
-
   async saveProfile(pData) {
     const user = state.user;
     if (!user) return { error: 'No user' };
     const { data, error } = await supabase.from('profiles').upsert({ id: user.id, ...pData }).select();
     if (!error) state.profile = data[0];
+    return { data, error };
+  },
+
+  async adminCreateUser(email, password, name) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return { error: 'Sessão expirada' };
+
+    const { data, error } = await supabase.functions.invoke('admin-actions', {
+      body: { action: 'CREATE_USER', payload: { email, password, name } }
+    });
+
+    return { data, error };
+  },
+
+  async adminResetPassword(userId, password) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return { error: 'Sessão expirada' };
+
+    const { data, error } = await supabase.functions.invoke('admin-actions', {
+      body: { action: 'RESET_PASSWORD', payload: { userId, password } }
+    });
+
+    return { data, error };
+  },
+
+  async adminToggleUserStatus(userId, status) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return { error: 'Sessão expirada' };
+
+    const { data, error } = await supabase.functions.invoke('admin-actions', {
+      body: { action: 'TOGGLE_STATUS', payload: { userId, status } }
+    });
+
+    return { data, error };
+  },
+
+  async adminDeleteUser(userId) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return { error: 'Sessão expirada' };
+
+    const { data, error } = await supabase.functions.invoke('admin-actions', {
+      body: { action: 'DELETE_USER', payload: { userId } }
+    });
+
     return { data, error };
   }
 };
@@ -439,6 +483,8 @@ export async function loadAdminData() {
 export function calcAdminStats() {
   const d = state.adminData;
   const totalUsers = d.profiles.length;
+  const activeUsers = d.profiles.filter(p => p.is_active !== false).length;
+  const inactiveUsers = totalUsers - activeUsers;
   
   // Total Managed Capital
   const totalDeps = d.deposits.reduce((a, b) => a + Number(b.amount), 0);
@@ -460,12 +506,15 @@ export function calcAdminStats() {
       name: p.name || 'Trader Anônimo',
       profit: userProfit,
       wr: wr,
-      trades: totalTrades
+      trades: totalTrades,
+      is_active: p.is_active !== false
     };
   }).sort((a, b) => b.profit - a.profit);
 
   return {
     totalUsers,
+    activeUsers,
+    inactiveUsers,
     managedCapital,
     totalPL,
     ranking

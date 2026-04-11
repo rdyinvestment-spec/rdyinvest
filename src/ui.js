@@ -881,27 +881,32 @@ function pgAdmin() {
            </div>
            <div style="margin-top: 24px; display: flex; gap: 32px">
               <div>
-                 <div class="st-lb">P&L Acumulado</div>
-                 <div class="mono ${cv(stats.totalPL)}" style="font-size: 20px; font-weight: 800">${fR(stats.totalPL)}</div>
+                 <div class="st-lb">Total / Ativos</div>
+                 <div class="mono" style="font-size: 20px; font-weight: 800; color: var(--xp)">${stats.totalUsers} <span style="font-size: 14px; opacity: 0.6">/ ${stats.activeUsers}</span></div>
               </div>
               <div>
-                 <div class="st-lb">Usuários Ativos</div>
-                 <div class="mono" style="font-size: 20px; font-weight: 800; color: var(--xp)">${stats.totalUsers}</div>
+                 <div class="st-lb">Status Inativo</div>
+                 <div class="mono" style="font-size: 20px; font-weight: 800; color: var(--red)">${stats.inactiveUsers}</div>
+              </div>
+              <div>
+                 <div class="st-lb">P&L Global</div>
+                 <div class="mono ${cv(stats.totalPL)}" style="font-size: 20px; font-weight: 800">${fR(stats.totalPL)}</div>
               </div>
            </div>
         </div>
 
-        <div class="card" style="padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid var(--xp-dim)">
+        <div class="card" style="padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid var(--xp-dim); cursor: pointer; transition: 0.3s; position: relative; overflow: hidden" onclick="openMo('mo-admin-create-user')">
            <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--xp-dim); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; border: 1px solid var(--xp)">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--xp)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--xp)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
            </div>
-           <div style="font-weight: 900; font-size: 18px">Segurança Ativa</div>
+           <div style="font-weight: 900; font-size: 18px">Criar Usuário</div>
+           <div style="position: absolute; inset: 0; background: linear-gradient(45deg, transparent, rgba(255,209,0,0.05), transparent); pointer-events: none"></div>
         </div>
 
         <div class="card" style="padding: 24px">
            <div class="shdr-t" style="margin-bottom: 16px">Configurações</div>
            <div style="display: flex; flex-direction: column; gap: 8px">
-              <button class="btn btn-ghost" style="width: 100%; justify-content: start; font-size: 12px" onclick="toast('Em desenvolvimento...')">Gerenciar Usuários</button>
+              <div style="color: var(--text3); font-size: 11px; font-style: italic">Nenhuma configuração adicional</div>
            </div>
         </div>
       </div>
@@ -925,7 +930,7 @@ function pgAdmin() {
                  </thead>
                  <tbody>
                     ${stats.ranking.map((u, idx) => `
-                       <tr class="ranking-row" style="background: rgba(255,255,255,0.02)">
+                        <tr class="ranking-row" style="background: rgba(255,255,255,0.02); cursor: pointer" onclick="openAdminUserManage('${u.id}')">
                           <td style="padding: 12px; border-radius: 8px 0 0 8px">
                              <div style="width: 28px; height: 28px; border-radius: 4px; background: ${idx === 0 ? 'var(--xp)' : 'rgba(255,255,255,0.05)'}; color: ${idx === 0 ? '#000' : '#FFF'}; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px">
                                 ${idx + 1}
@@ -935,7 +940,7 @@ function pgAdmin() {
                           <td style="padding: 12px" class="mono ${cv(u.profit)}">${fR(u.profit)}</td>
                           <td style="padding: 12px" class="mono">${u.wr.toFixed(0)}%</td>
                           <td style="padding: 12px; border-radius: 0 8px 8px 0; text-align: right">
-                             <button class="btn btn-ghost" style="padding: 6px; height: auto" onclick="startImpersonation('${u.id}')" title="Visualizar Dashboard">
+                             <button class="btn btn-ghost" style="padding: 6px; height: auto" onclick="event.stopPropagation(); startImpersonation('${u.id}')" title="Visualizar Dashboard">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                              </button>
                           </td>

@@ -1,8 +1,8 @@
 import './style.css';
 import { auth } from './supabase';
-import { store, state, calcStartingBalance, CALC, monthCALC } from './store';
+import { store, state, calcStartingBalance, CALC, monthCALC, loadAdminData, calcAdminStats } from './store';
 import { renderPage, initChartDefaults } from './ui';
-import { today, fR, fDate } from './utils';
+import { today, fR, fDate, cv } from './utils';
 import Chart from 'chart.js/auto';
 
 // Navigation Manager
@@ -27,8 +27,14 @@ window.showPage = async (page, event) => {
     try {
       await loadAdminData();
     } catch (e) {
-      toast('Acesso restrito ao Administrador', 'err');
-      return showPage('dashboard');
+      // Fail-safe: Try to refresh profile once in case admin was JUST promoted
+      await store.init();
+      try {
+        await loadAdminData();
+      } catch (e2) {
+        toast('Acesso restrito ao Administrador', 'err');
+        return showPage('dashboard');
+      }
     }
   }
 
@@ -142,6 +148,18 @@ window.toggleAdmin = () => {
     admNav.style.display = admNav.style.display === 'none' ? 'flex' : 'none';
     toast('Modo Admin Alternado', 'xp');
   }
+};
+window.togglePass = (inputId, btn) => {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  const isPass = el.type === 'password';
+  el.type = isPass ? 'text' : 'password';
+  
+  // Icon paths for Eye and Eye-Off
+  const eye = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  const eyeOff = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+  
+  btn.innerHTML = isPass ? eyeOff : eye;
 };
 
 
@@ -617,22 +635,31 @@ async function initApp() {
 
     if (!user) {
       document.getElementById('screen-login').style.display = 'flex';
+      document.getElementById('screen-register').style.display = 'none';
       document.getElementById('screen-app').style.display = 'none';
       initAuthFlow();
     } else {
       document.getElementById('screen-login').style.display = 'none';
+      document.getElementById('screen-register').style.display = 'none';
       document.getElementById('screen-app').style.display = 'block';
       
       try {
         await store.loadAll();
         
-        // Show Admin Nav if applicable
-        if (state.profile?.is_admin) {
-          const admNav = document.getElementById('nav-admin');
-          if (admNav) admNav.style.display = 'flex';
-        }
+        // Show/Hide Nav based on Role
+        const isAdmin = !!state.profile?.is_admin;
+        const admNav = document.getElementById('nav-admin');
+        const membersOnly = document.querySelectorAll('.member-only');
 
-        window.showPage('dashboard');
+        if (isAdmin) {
+          if (admNav) admNav.style.display = 'flex';
+          membersOnly.forEach(el => el.style.display = 'none');
+          window.showPage('admin');
+        } else {
+          if (admNav) admNav.style.display = 'none';
+          membersOnly.forEach(el => el.style.display = 'flex');
+          window.showPage('dashboard');
+        }
         
         // Auto-open settings if new signup
         if (window.isNewSignup) {
@@ -651,6 +678,7 @@ async function initApp() {
     console.error('CRITICAL INIT FAILURE:', err);
     // Force show login as fallback so user isn't stuck
     document.getElementById('screen-login').style.display = 'flex';
+    document.getElementById('screen-register').style.display = 'none';
     document.getElementById('screen-app').style.display = 'none';
     initAuthFlow();
   }
@@ -674,9 +702,20 @@ function initAuthFlow() {
     } else {
       if (isRem) localStorage.setItem('rdy_remembered_email', email);
       else localStorage.removeItem('rdy_remembered_email');
-      initApp(); // Smooth transition without splash
+      
+      // Force profile refresh to ensure fresh state (Admin status, etc)
+      await store.init(); 
+      initApp(); 
     }
   };
+
+  // Enter Key Handler
+  const handleEnter = (e, callback) => {
+    if (e.key === 'Enter') callback();
+  };
+
+  document.getElementById('tf-login-email').onkeydown = (e) => handleEnter(e, document.getElementById('btn-do-login').onclick);
+  document.getElementById('tf-login-pass').onkeydown = (e) => handleEnter(e, document.getElementById('btn-do-login').onclick);
   document.getElementById('btn-do-register').onclick = async () => {
     const name = document.getElementById('tf-reg-name').value;
     const email = document.getElementById('tf-reg-email').value;
@@ -697,8 +736,8 @@ function initAuthFlow() {
     if (data.user) {
       if (!data.session) {
         // Account exists but no session = Email Confirmation likely active
-        alert('✅ Conta criada! Verifique sua caixa de entrada para confirmar seu e-mail e ativar seu acesso.');
-        location.reload(); // Refresh to login page
+        alert('✅ Conta criada! Verifique seu e-mail para confirmar seu acesso.\n\nDepois de confirmar, basta fazer login.');
+        toggleAuth('login');
       } else {
         toast('Conta criada com sucesso!', 'pos');
         window.isNewSignup = true; 
@@ -706,6 +745,10 @@ function initAuthFlow() {
       }
     }
   };
+
+  document.getElementById('tf-reg-name').onkeydown = (e) => handleEnter(e, document.getElementById('btn-do-register').onclick);
+  document.getElementById('tf-reg-email').onkeydown = (e) => handleEnter(e, document.getElementById('btn-do-register').onclick);
+  document.getElementById('tf-reg-pass').onkeydown = (e) => handleEnter(e, document.getElementById('btn-do-register').onclick);
 }
 
 window.logout = async () => {
@@ -813,6 +856,158 @@ window.stopImpersonation = async () => {
   } catch (e) {
     console.error(e);
     toast('Erro ao restaurar visão', 'err');
+  }
+};
+
+window.openAdminUserManage = (userId) => {
+  const stats = calcAdminStats();
+  const user = stats.ranking.find(p => p.id === userId);
+  const profile = state.adminData.profiles.find(p => p.id === userId);
+  
+  if (!user || !profile) return toast('Usuário não encontrado', 'err');
+
+  document.getElementById('am-user-id').value = user.id;
+  document.getElementById('am-user-name').textContent = user.name || 'Trader';
+  document.getElementById('am-user-email').textContent = profile.email || '—';
+  document.getElementById('am-new-pass').value = '';
+  
+  // Fill Stats
+  const profitEl = document.getElementById('am-stat-profit');
+  profitEl.textContent = fR(user.profit);
+  profitEl.className = 'mono ' + cv(user.profit);
+  
+  document.getElementById('am-stat-wr').textContent = user.wr.toFixed(0) + '%';
+  document.getElementById('am-stat-trades').textContent = user.trades;
+  
+  // Set Status Toggle
+  const isActive = profile.is_active !== false;
+  const tog = document.getElementById('am-tog-status');
+  const lb = document.getElementById('am-status-label');
+  
+  if (isActive) {
+    tog.classList.add('on');
+    lb.textContent = 'USUÁRIO ATIVO';
+    lb.style.color = 'var(--green)';
+  } else {
+    tog.classList.remove('on');
+    lb.textContent = 'ACESSO SUSPENSO';
+    lb.style.color = 'var(--red)';
+  }
+  
+  openMo('mo-admin-manage-user');
+};
+
+window.doAdminToggleStatus = async () => {
+  const userId = document.getElementById('am-user-id').value;
+  const tog = document.getElementById('am-tog-status');
+  const lb = document.getElementById('am-status-label');
+  const newStatus = !tog.classList.contains('on');
+
+  toast('Atualizando status...', 'wait');
+  const { error } = await store.adminToggleUserStatus(userId, newStatus);
+
+  if (error) {
+    toast('Erro ao atualizar status', 'err');
+  } else {
+    tog.classList.toggle('on');
+    if (newStatus) {
+      lb.textContent = 'USUÁRIO ATIVO';
+      lb.style.color = 'var(--green)';
+      toast('Acesso ativado', 'pos');
+    } else {
+      lb.textContent = 'ACESSO SUSPENSO';
+      lb.style.color = 'var(--red)';
+      toast('Acesso suspenso', 'pos');
+    }
+    
+    // Refresh background to sync counts
+    await loadAdminData();
+    renderPage('admin');
+  }
+};
+
+window.doAdminDeleteUser = async () => {
+  const userId = document.getElementById('am-user-id').value;
+  const userName = document.getElementById('am-user-name').textContent;
+
+  const confirmed = confirm(`AVISO CRÍTICO: Você tem certeza que deseja excluir permanentemente o usuário "${userName}"?\n\nEsta ação apagará todos os trades, histórico e conta de acesso. Não pode ser desfeita.`);
+
+  if (!confirmed) return;
+
+  toast('Excluindo usuário...', 'wait');
+  const { error } = await store.adminDeleteUser(userId);
+
+  if (error) {
+    toast('Erro ao excluir: ' + (error.message || error), 'err');
+  } else {
+    toast('Usuário removido com sucesso', 'pos');
+    closeMo();
+    
+    // Refresh admin data
+    await loadAdminData();
+    renderPage('admin');
+  }
+};
+
+window.togglePass = (id, btn) => {
+  const input = document.getElementById(id);
+  const isPass = input.type === 'password';
+  input.type = isPass ? 'text' : 'password';
+  
+  // Swap SVG icon
+  if (isPass) {
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+  } else {
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+};
+
+window.doAdminResetPassword = async () => {
+  const userId = document.getElementById('am-user-id').value;
+  const pass = document.getElementById('am-new-pass').value;
+
+  if (!pass || pass.length < 6) return toast('Senha muito curta (mín. 6)', 'err');
+
+  toast('Redefinindo senha...', 'wait');
+  const { error } = await store.adminResetPassword(userId, pass);
+
+  if (error) {
+    toast('Erro: ' + (error.message || error), 'err');
+  } else {
+    toast('Senha alterada com sucesso!', 'pos');
+    closeMo();
+    
+    // Refresh admin data
+    await loadAdminData();
+    renderPage('admin');
+  }
+};
+
+window.doAdminCreateUser = async () => {
+  const name = document.getElementById('af-create-name').value;
+  const email = document.getElementById('af-create-email').value;
+  const pass = document.getElementById('af-create-pass').value;
+
+  if (!name || !email || !pass) return toast('Preencha todos os campos', 'err');
+  if (pass.length < 6) return toast('Senha muito curta', 'err');
+
+  toast('Criando conta...', 'wait');
+  const { data, error } = await store.adminCreateUser(email, pass, name);
+
+  if (error) {
+    toast('Erro: ' + (error.message || error), 'err');
+  } else {
+    toast('Usuário criado com sucesso!', 'pos');
+    closeMo();
+    
+    // Clear fields
+    document.getElementById('af-create-name').value = '';
+    document.getElementById('af-create-email').value = '';
+    document.getElementById('af-create-pass').value = '';
+    
+    // Force refresh admin data to show the new user
+    await loadAdminData();
+    renderPage('admin');
   }
 };
 

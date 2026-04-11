@@ -35,7 +35,12 @@
       </div>
       <div style="margin-bottom:24px">
         <label class="fl-lb" style="margin-bottom:8px; display:block">Sua Senha</label>
-        <input type="password" id="tf-login-pass" class="fi" placeholder="••••••••" />
+        <div class="pw-wrapper">
+          <input type="password" id="tf-login-pass" class="fi" placeholder="••••••••" />
+          <button type="button" class="pw-toggle" onclick="togglePass('tf-login-pass', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
       </div>
 
       <div style="margin-bottom:24px; display:flex; align-items:center; gap:10px; cursor:pointer" onclick="const c=document.getElementById('tf-login-rem'); c.checked=!c.checked">
@@ -50,9 +55,6 @@
         <span onclick="toggleAuth('register')" style="color:var(--xp); font-weight:800; cursor:pointer; margin-left:4px; border-bottom:1px solid rgba(255,209,0,0.3)">Criar conta de membro</span>
       </div>
 
-      <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.05); text-align:center">
-        <button onclick="emergencyReset()" style="background:none; border:none; color:var(--text3); font-size:11px; cursor:pointer; text-decoration:underline">⚙️ Reset de Emergência (12345678)</button>
-      </div>
     </div>
   </div>
 
@@ -75,7 +77,12 @@
       </div>
       <div style="margin-bottom:24px">
         <label class="fl-lb" style="margin-bottom:8px; display:block">Senha de Acesso</label>
-        <input type="password" id="tf-reg-pass" class="fi" placeholder="Mínimo 8 caracteres" />
+        <div class="pw-wrapper">
+          <input type="password" id="tf-reg-pass" class="fi" placeholder="Mínimo 8 caracteres" />
+          <button type="button" class="pw-toggle" onclick="togglePass('tf-reg-pass', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
       </div>
 
       <button id="btn-do-register" class="btn btn-xp" style="width:100%; height:52px; font-size:16px">Finalizar Cadastro</button>
@@ -114,22 +121,22 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         <span>Home</span>
       </a>
-      <a href="javascript:void(0)" class="nav-i" data-page="calendar" onclick="showPage('calendar', event)">
+      <a href="javascript:void(0)" class="nav-i member-only" data-page="calendar" onclick="showPage('calendar', event)">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         <span>Agenda</span>
       </a>
 
       <!-- Central FAB -->
-      <div class="fab" onclick="window.onFab && window.onFab()">
+      <div class="fab member-only" onclick="window.onFab && window.onFab()">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
       </div>
 
-      <a href="javascript:void(0)" class="nav-i" data-page="reports" onclick="showPage('reports', event)">
+      <a href="javascript:void(0)" class="nav-i member-only" data-page="reports" onclick="showPage('reports', event)">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         <span>Insights</span>
       </a>
 
-      <a href="javascript:void(0)" class="nav-i" data-page="movements" onclick="showPage('movements', event)">
+      <a href="javascript:void(0)" class="nav-i member-only" data-page="movements" onclick="showPage('movements', event)">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
         <span>Aportes</span>
       </a>
@@ -333,13 +340,116 @@
       <div class="mf" style="margin-top:24px">
         <div class="fl">
           <label class="fl-lb">Nova Senha</label>
-          <input type="password" id="pw-new" class="fi" placeholder="Mínimo 6 caracteres">
+          <div class="pw-wrapper">
+            <input type="password" id="pw-new" class="fi" placeholder="Mínimo 6 caracteres">
+            <button type="button" class="pw-toggle" onclick="togglePass('pw-new', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
         <div class="fl">
           <label class="fl-lb">Confirmar Senha</label>
-          <input type="password" id="pw-confirm" class="fi" placeholder="Repita a nova senha">
+          <div class="pw-wrapper">
+            <input type="password" id="pw-confirm" class="fi" placeholder="Repita a nova senha">
+            <button type="button" class="pw-toggle" onclick="togglePass('pw-confirm', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
         <button class="btn btn-xp" onclick="saveNewPassword()" style="margin-top:20px; width: 100%">Atualizar Senha</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin: Create User Modal -->
+  <div id="mo-admin-create-user" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
+    <div class="mo-content" onclick="event.stopPropagation()" style="padding: 32px 24px; max-width: 440px">
+      <div class="mo-close" onclick="closeMo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
+      </div>
+      <div class="mo-h" style="margin-bottom: 24px">
+        <div class="shdr-t">Novos Membros</div>
+        <h2 style="font-size: 24px; font-weight: 900">Criar Usuário</h2>
+      </div>
+      <div class="mf">
+        <div class="fl">
+          <label class="fl-lb">Nome Completo</label>
+          <input type="text" id="af-create-name" class="fi" placeholder="Ex: João Silva">
+        </div>
+        <div class="fl">
+          <label class="fl-lb">E-mail Corporativo</label>
+          <input type="email" id="af-create-email" class="fi" placeholder="membro@rdyinvest.com.br">
+        </div>
+        <div class="fl">
+          <label class="fl-lb">Senha Inicial</label>
+          <div style="display:flex; gap:6px; align-items:center">
+            <input type="password" id="af-create-pass" class="fi" placeholder="Mínimo 6 caracteres" style="flex:1">
+            <button type="button" class="btn-ghost" onclick="togglePass('af-create-pass', this)" style="width:48px; height:48px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.04); border:1px solid var(--border2)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button class="btn btn-xp" style="width: 100%; margin-top: 16px" onclick="doAdminCreateUser()">Criar Conta de Membro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin: Manage User Modal -->
+  <div id="mo-admin-manage-user" class="mo mo-elite" onclick="if(event.target===this)closeMo()">
+    <div class="mo-content" onclick="event.stopPropagation()" style="padding: 32px 24px; max-width: 480px">
+      <div class="mo-close" onclick="closeMo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
+      </div>
+      <div class="mo-h" style="margin-bottom: 32px">
+        <div class="shdr-t">Perfil & Gestão</div>
+        <h2 id="am-user-name" style="font-size: 24px; font-weight: 900">Usuário</h2>
+        <div id="am-user-email" style="font-size: 13px; color: var(--text3); margin-top: 4px">email@exemplo.com</div>
+      </div>
+      
+      <!-- User Summary Stats -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 32px">
+        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05)">
+          <div style="font-size: 10px; color: var(--text3); text-transform: uppercase; font-weight: 700">Resultado</div>
+          <div id="am-stat-profit" class="mono" style="font-size: 14px; font-weight: 800; margin-top: 4px">R$ 0,00</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05)">
+          <div style="font-size: 10px; color: var(--text3); text-transform: uppercase; font-weight: 700">Win Rate</div>
+          <div id="am-stat-wr" class="mono" style="font-size: 14px; font-weight: 800; margin-top: 4px">0%</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05)">
+          <div style="font-size: 10px; color: var(--text3); text-transform: uppercase; font-weight: 700">Trades</div>
+          <div id="am-stat-trades" class="mono" style="font-size: 14px; font-weight: 800; margin-top: 4px">0</div>
+        </div>
+      </div>
+
+      <div class="mf">
+        <input type="hidden" id="am-user-id">
+        
+        <!-- Status Management -->
+        <div class="tog-row" style="margin-bottom: 24px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04)">
+          <div style="display: flex; flex-direction: column">
+            <span class="tog-lb" style="font-size: 14px; font-weight: 800">Status da Conta</span>
+            <span id="am-status-label" style="font-size: 11px; color: var(--green); font-weight: 700; margin-top: 2px">USUÁRIO ATIVO</span>
+          </div>
+          <div id="am-tog-status" class="tog on" onclick="doAdminToggleStatus()"></div>
+        </div>
+
+        <div class="fl" style="margin-top: 24px">
+          <label class="fl-lb">Operação: Redefinir Senha</label>
+          <div style="display:flex; gap:8px; align-items:center; margin-top: 8px">
+            <input type="password" id="am-new-pass" class="fi" placeholder="Defina uma nova senha" style="flex:1; border-radius: 14px">
+            <button type="button" class="btn-ghost" onclick="togglePass('am-new-pass', this)" style="width:52px; height:52px; border-radius:14px; flex-shrink:0; background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button class="btn btn-xp" style="width: 100%; margin-top: 16px; height: 52px; border-radius: 14px" onclick="doAdminResetPassword()">Atualizar Senha Agora</button>
+        
+        <!-- Delete Section -->
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center">
+          <button class="btn btn-ghost" onclick="doAdminDeleteUser()" style="color: var(--red); border-color: rgba(255,64,64,0.1); width: 100%">Excluir Conta Permanentemente</button>
+          <div style="font-size: 10px; color: var(--text3); margin-top: 8px">Esta ação removerá todos os dados do usuário.</div>
+        </div>
       </div>
     </div>
   </div>

@@ -56,14 +56,45 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
+/* ─── Premium Scrollbar ──────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.2);
+}
+
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background: var(--bg);
+  color-scheme: dark;
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   letter-spacing: -0.01em;
+}
+
+/* Hide native password reveal */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
 }
 
 .mono { font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.04em; }
@@ -993,4 +1024,33 @@ textarea.fi { resize: none; }
     margin-bottom: 16px !important;
     text-align: center !important;
   }
+}
+/* ─── Password Toggle ─────────── */
+.pw-wrapper {
+  position: relative;
+  width: 100%;
+}
+.pw-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 5;
+}
+.pw-toggle:hover {
+  color: var(--xp);
+  transform: translateY(-50%) scale(1.1);
+}
+.pw-toggle svg {
+  width: 18px;
+  height: 18px;
 }
