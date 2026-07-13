@@ -141,14 +141,6 @@ function setTog(id, val) {
 }
 window.toggleTog = (id) => document.getElementById(id)?.classList.toggle('on');
 
-// Debug/Dev Shortcut to access Admin Portal
-window.toggleAdmin = () => {
-  const admNav = document.getElementById('nav-admin');
-  if (admNav) {
-    admNav.style.display = admNav.style.display === 'none' ? 'flex' : 'none';
-    toast('Modo Admin Alternado', 'xp');
-  }
-};
 window.togglePass = (inputId, btn) => {
   const el = document.getElementById(inputId);
   if (!el) return;
@@ -647,18 +639,24 @@ async function initApp() {
         await store.loadAll();
         
         // Show/Hide Nav based on Role
-        const isAdmin = !!state.profile?.is_admin;
+        const isAdmin = state.profile?.is_admin === true;
         const admNav = document.getElementById('nav-admin');
         const membersOnly = document.querySelectorAll('.member-only');
 
         if (isAdmin) {
           if (admNav) admNav.style.display = 'flex';
           membersOnly.forEach(el => el.style.display = 'none');
-          window.showPage('admin');
+          // If we were on admin but lost rights, show dashboard.
+          // Otherwise, we can stay on current page or go to admin if it's the first load
+          if (!window.pgState.currentPage || window.pgState.currentPage === 'admin') {
+             window.showPage('admin');
+          }
         } else {
           if (admNav) admNav.style.display = 'none';
           membersOnly.forEach(el => el.style.display = 'flex');
-          window.showPage('dashboard');
+          if (window.pgState.currentPage === 'admin' || !window.pgState.currentPage) {
+            window.showPage('dashboard');
+          }
         }
         
         // Auto-open settings if new signup
