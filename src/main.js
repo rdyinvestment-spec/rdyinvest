@@ -648,13 +648,13 @@ async function initApp() {
           membersOnly.forEach(el => el.style.display = 'none');
           // If we were on admin but lost rights, show dashboard.
           // Otherwise, we can stay on current page or go to admin if it's the first load
-          if (!window.pgState.currentPage || window.pgState.currentPage === 'admin') {
+          if (!window.pgState?.currentPage || window.pgState?.currentPage === 'admin') {
              window.showPage('admin');
           }
         } else {
           if (admNav) admNav.style.display = 'none';
           membersOnly.forEach(el => el.style.display = 'flex');
-          if (window.pgState.currentPage === 'admin' || !window.pgState.currentPage) {
+          if (window.pgState?.currentPage === 'admin' || !window.pgState?.currentPage) {
             window.showPage('dashboard');
           }
         }
