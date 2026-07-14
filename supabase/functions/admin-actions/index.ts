@@ -90,6 +90,23 @@ serve(async (req) => {
       return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
 
+    if (action === 'LIST_USERS') {
+      const users = []
+      let page = 1
+      const perPage = 200
+      while (true) {
+        const { data: pageData, error: listErr } = await supabaseAdmin.auth.admin.listUsers({ page, perPage })
+        if (listErr) throw listErr
+        users.push(...pageData.users.map(u => ({ id: u.id, email: u.email })))
+        if (pageData.users.length < perPage) break
+        page++
+      }
+
+      return new Response(JSON.stringify({ success: true, users }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     if (action === 'DELETE_USER') {
       const { userId } = payload
       

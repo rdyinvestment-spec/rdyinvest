@@ -936,7 +936,10 @@ function pgAdmin() {
                                 ${idx + 1}
                              </div>
                           </td>
-                          <td style="padding: 12px; font-weight: 700">${u.name}</td>
+                          <td style="padding: 12px">
+                             <div style="font-weight: 700">${u.name}</div>
+                             <div style="font-size: 11px; color: var(--text3)">${u.email || '—'}</div>
+                          </td>
                           <td style="padding: 12px" class="mono ${cv(u.profit)}">${fR(u.profit)}</td>
                           <td style="padding: 12px" class="mono">${u.wr.toFixed(0)}%</td>
                           <td style="padding: 12px; border-radius: 0 8px 8px 0; text-align: right">

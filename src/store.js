@@ -478,15 +478,19 @@ export const store = {
 export async function loadAdminData() {
   if (!state.profile?.is_admin) throw new Error("Acesso negado");
 
-  const [resP, resD, resDep, resW] = await Promise.all([
+  const [resP, resD, resDep, resW, resU] = await Promise.all([
     supabase.from('profiles').select('*'),
     supabase.from('trading_days').select('*'),
     supabase.from('deposits').select('*'),
-    supabase.from('withdrawals').select('*')
+    supabase.from('withdrawals').select('*'),
+    supabase.functions.invoke('admin-actions', { body: { action: 'LIST_USERS' } })
   ]);
 
+  const emailById = new Map((resU.data?.users || []).map(u => [u.id, u.email]));
+  const profiles = (resP.data || []).map(p => ({ ...p, email: emailById.get(p.id) || null }));
+
   state.adminData = {
-    profiles: resP.data || [],
+    profiles,
     days: resD.data || [],
     deposits: resDep.data || [],
     withdrawals: resW.data || []
@@ -518,6 +522,7 @@ export function calcAdminStats() {
     return {
       id: p.id,
       name: p.name || 'Trader Anônimo',
+      email: p.email,
       profit: userProfit,
       wr: wr,
       trades: totalTrades,
