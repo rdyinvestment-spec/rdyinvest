@@ -1,6 +1,20 @@
 import { supabase } from './supabase';
 import { today } from './utils';
 
+// supabase-js only gives a generic "non-2xx status code" message for Edge
+// Function errors — the real reason is in the response body (error.context).
+async function describeFnError(error) {
+  if (!error) return error;
+  try {
+    if (error.context && typeof error.context.json === 'function') {
+      const body = await error.context.clone().json();
+      const detail = body?.error || body?.message;
+      if (detail) return { message: detail };
+    }
+  } catch (_) { /* body wasn't JSON — fall back to generic message */ }
+  return error;
+}
+
 export const state = {
   user: null,
   profile: null,
@@ -424,7 +438,7 @@ export const store = {
       body: { action: 'CREATE_USER', payload: { email, password, name } }
     });
 
-    return { data, error };
+    return { data, error: await describeFnError(error) };
   },
 
   async adminResetPassword(userId, password) {
@@ -435,7 +449,7 @@ export const store = {
       body: { action: 'RESET_PASSWORD', payload: { userId, password } }
     });
 
-    return { data, error };
+    return { data, error: await describeFnError(error) };
   },
 
   async adminToggleUserStatus(userId, status) {
@@ -446,7 +460,7 @@ export const store = {
       body: { action: 'TOGGLE_STATUS', payload: { userId, status } }
     });
 
-    return { data, error };
+    return { data, error: await describeFnError(error) };
   },
 
   async adminDeleteUser(userId) {
@@ -457,7 +471,7 @@ export const store = {
       body: { action: 'DELETE_USER', payload: { userId } }
     });
 
-    return { data, error };
+    return { data, error: await describeFnError(error) };
   }
 };
 // --- Admin Specific Logic ---
